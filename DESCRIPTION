@@ -1,0 +1,36 @@
+Package: rawacceleration
+Title: Making Accelerometer Data Interpretable
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Fabian", family = "Schwendinger", email = "fabian.schwendinger@unibas.ch", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-7795-1478"))
+    person(given = "Denis", family = "Infanger", email = "denis.infanger@unibas.ch", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-9028-7110"))
+Maintainer: Fabian Schwendinger <fabian.schwendinger@unibas.ch>
+Description: This application supports the use of cut-point-free metrics, namely AvAcc and IG, assessed by wrist-worn triaxial accelerometers.{rawacceleration} will turn abstract numbers into understandable information. This will be achieved by the following two steps: classifying the levels of physical activity based on age- and sex-specific reference values. and translating the cut-point-free accelerometer metrics into meaningful outcomes.
+License: 'use_lgpl_license(version = 3, include_future = TRUE)'
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Depends: 
+    R (>= 2.10),
+    tidyverse (>= 1.3.1),
+    shiny (>= 1.7.2),
+    palmerpenguins (>= 0.1.0),
+    shinythemes (>= 1.2.0),
+    shinyalert (>= 3.0.0),
+    gamlss (>= 5.4-3),
+    rms (>= 6.3-0),
+    scales (>= 1.2.1),
+    ggpubr (>= 0.4.0),
+    fontawesome (>= 0.3.0),
+    shinybusy (>= 0.3.1),
+    shinyBS (>= 0.61.1),
+    shinyjs (>= 2.1.0),
+    DT (>= 0.25),
+    directlabels (>= 2021.1.13)
+LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
