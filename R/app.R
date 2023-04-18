@@ -226,7 +226,7 @@ rawaccel <- function() {
               actionButton(
                 "reset",
                 "Reset calculations",
-                icon = fa_i("fa-solid fa-delete-left", verify_fa = FALSE)
+                icon = fa_i("fas fa-delete-left", verify_fa = FALSE)
               ),
               br(),
               radioButtons(
@@ -350,7 +350,7 @@ rawaccel <- function() {
             actionButton(
               "reset1",
               "Reset calculations",
-              icon = fa_i("fa-solid fa-delete-left", verify_fa = FALSE)
+              icon = fa_i("fas fa-delete-left", verify_fa = FALSE)
             ),
             fluidRow(
               column(
@@ -447,7 +447,7 @@ rawaccel <- function() {
             actionButton(
               "reset2",
               "Reset calculations",
-              icon = fa_i("fa-solid fa-delete-left", verify_fa = FALSE)
+              icon = fa_i("fas fa-delete-left", verify_fa = FALSE)
             ),
             fluidRow(
               column(
@@ -584,7 +584,7 @@ rawaccel <- function() {
                                actionButton(
                                  "clear",
                                  "Clear file",
-                                 icon = fa_i("fa-solid fa-delete-left", verify_fa = FALSE)
+                                 icon = fa_i("fas fa-delete-left", verify_fa = FALSE)
                                )),
                         column(
                           width = 4,
@@ -1391,7 +1391,7 @@ output$download_template <- downloadHandler(
         , percentile = NA
       )
 
-    print(res_frame)
+    # print(res_frame)
 
     res_frame$model_name <- rep(paste0("centile", "_", res_frame$parameter, "_", res_frame$gender))
 
@@ -2136,12 +2136,12 @@ output$download_template <- downloadHandler(
     )
      }
 
-    if (sex_i() == "f") {
-      cat("\nDelta x for 1 mL VO2max-change _ f:", c(inc_acc_abs_f - avacc_i(), inc_ig_abs_f - ig_i()), "\n")
-    }
-    else if (sex_i() == "m") {
-      cat("\nDelta x for 1 mL VO2max-change _ m: ", c(inc_acc_abs_m - avacc_i(), inc_ig_abs_m - ig_i()), "\n")
-    }
+    # if (sex_i() == "f") {
+    #   cat("\nDelta x for 1 mL VO2max-change _ f:", c(inc_acc_abs_f - avacc_i(), inc_ig_abs_f - ig_i()), "\n")
+    # }
+    # else if (sex_i() == "m") {
+    #   cat("\nDelta x for 1 mL VO2max-change _ m: ", c(inc_acc_abs_m - avacc_i(), inc_ig_abs_m - ig_i()), "\n")
+    # }
 
      # cat("\nDelta x for 1 mL VO2max-change: ", c(inc_acc_abs_f - avacc_i(), inc_ig_abs_f - ig_i()), "\n")
      # cat("\nDelta x for 1 mL VO2max-change: ", c(inc_acc_abs_m - avacc_i(), inc_ig_abs_m - ig_i()), "\n")

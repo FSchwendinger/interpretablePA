@@ -4,4 +4,4 @@ inst/doc
 .Rbuildignore
 .Rhistory
 .gitignore
-.Rproj
+*.Rproj
