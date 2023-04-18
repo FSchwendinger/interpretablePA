@@ -57,10 +57,8 @@ rawaccel <- function() {
 
   # Load model files (gamlss), store them in a list and name them accordingly
   # mod <- lapply(Sys.glob(path = paste0(dat_path, "/centile_avacc_f.rds")), readRDS)
-  model_list <- lapply(Sys.glob(path = paste0("./data", "/*.rds")), readRDS)
-  names(model_list) <- gsub(".rds", "", grep("/*.rds", list.files(paste0("./data")), value = TRUE))
-
-
+  # model_list <- lapply(Sys.glob(path = paste0("./data", "/*.rds")), readRDS)
+  # names(model_list) <- gsub(".rds", "", grep("/*.rds", list.files(paste0("./data")), value = TRUE))
 
   ui <-
     shiny::fluidPage(
