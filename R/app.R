@@ -53,7 +53,7 @@ rawaccel <- function() {
   )
 
 
-  source("R/helpers.R")
+  source("helpers.R")
 
   # Load model files (gamlss), store them in a list and name them accordingly
   # mod <- lapply(Sys.glob(path = paste0(dat_path, "/centile_avacc_f.rds")), readRDS)
