@@ -6,6 +6,16 @@ Authors@R:
            comment = c(ORCID = "0000-0001-7795-1478"))
     person(given = "Denis", family = "Infanger", email = "denis.infanger@unibas.ch", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-9028-7110"))
+    person(given = "Alex", family = "Rowlands", email = "alex.rowlands@leicester.ac.uk", role = "ctb",
+           comment = c(ORCID = "0000-0002-1463-697X"))
+    person(given = "Jonathan", family = "Wagner", email = "jonathan.wagner@unibas.ch", role = "ctb",
+           comment = c(ORCID = "0000-0002-3436-588X"))
+    person(given = "Raphael", family = "Knaier", email = "raphael.knaier@unibas.ch", role = "ctb",
+           comment = c(ORCID = "0000-0002-0244-7768"))
+    person(given = "Timo", family = "Hinrichs", email = "timo.hinrichs@unibas.ch", role = "ctb",
+           comment = c(ORCID = "0000-0001-6200-307X"))
+    person(given = "Arno", family = "Schmidt-Trucksaess", email = "arno.schmidt-trucksaess@unibas.ch", role = "ctb",
+           comment = c(ORCID = "0000-0002-4662-3911"))
 Maintainer: Fabian Schwendinger <fabian.schwendinger@unibas.ch>
 Description: This application supports the use of cut-point-free metrics, namely AvAcc and IG, assessed by wrist-worn triaxial accelerometers.{rawacceleration} will turn abstract numbers into understandable information. This will be achieved by the following two steps: classifying the levels of physical activity based on age- and sex-specific reference values. and translating the cut-point-free accelerometer metrics into meaningful outcomes.
 License: 'use_lgpl_license(version = 3, include_future = TRUE)'

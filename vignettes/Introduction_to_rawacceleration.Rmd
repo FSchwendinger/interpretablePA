@@ -1,9 +1,12 @@
 ---
 title: "Interpreting accelerometer data with rawacceleration"
-output: rmarkdown::html_vignette
-toc: TRUE
+author: "Fabian Schwendinger"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
 vignette: >
-  %\VignetteIndexEntry{Introduction to the rawacceleration application}
+  %\VignetteIndexEntry{Interpreting accelerometer data with rawacceleration}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -17,7 +20,7 @@ knitr::opts_chunk$set(
 
 ```
 
-### ![](images/app_logo.png){width="262"}
+![](images/app_logo.png){width="262"}
 
 Making cut-point-free accelerometer metrics interpretable
 
@@ -39,20 +42,19 @@ This application supports the use of cut-point-free metrics, namely AvAcc and IG
 
 `rawacceleration` works with data that were processed using the R-package [GGIR](https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html#1_Introduction). It is important that data are processed in a similar manner. For further information about [GGIR](https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html#1_Introduction), please see the package vignette.
 
-# 2 Getting started
+# **2 Getting started**
 
-## **2.1 Installing** `rawacceleration`
+## 2.1 Installing `rawacceleration`
 
 To get started with the `rawacceleration` package, you first need to install it. You can do this by running the following code in R:
 
-```{r setup}
-install.packages("remotes")
-remotes::install_github("FSchwendinger/rawacceleration")
-```
+`install.packages("remotes")`
+
+`remotes::install_github("FSchwendinger/rawacceleration")`
 
 After the installation is complete, you can load the package using:
 
-```{load package}
+```{r load_package, message = FALSE, warning = FALSE, echo = TRUE, eval = F}
 library(rawacceleration)
 ```
 
@@ -60,7 +62,7 @@ library(rawacceleration)
 
 Once you've loaded the `rawacceleration` package, you can start exploring its capabilities. The package consists of a single function that calls a Shiny application. To see this in action, simply run the following code:
 
-```{example}
+```{r run_app, message = FALSE, warning = FALSE, echo = TRUE, eval = F}
 rawaccel()
 ```
 
@@ -68,7 +70,7 @@ rawaccel()
 
 The Shiny application included in the package can alternatively be accessed directly through the following website: ***tba***
 
-# 3 How to use `rawacceleration`
+# **3 How to use `rawacceleration`**
 
 The `rawacceleration` package provides a user-friendly application for analysing physical activity data. This application offers several data entry options, including individual-level data, aggregated cohort-level data stratified by sex or non-stratified (cohort means/medians), or raw-level data.
 
@@ -169,7 +171,7 @@ Choosing the raw-level data entry option will yield the following outcomes.
 
 Moreover, a four-panel graph will be produced with all individual data of intensity gradient and average acceleration provided by the user in relation to our reference values. The graph is stratified by sex and age and can be downloaded in panel "**2) View results**".
 
-# 4 Perspective
+# **4 Perspective**
 
 We plan on implementing several features in the future.
 
@@ -179,7 +181,7 @@ We plan on implementing several features in the future.
 
 -   Downloadable .pdf reports of your analyses: We are currently working on this.
 
-# 5 Methodological considerations
+# **5 Methodological considerations**
 
 ## Raw data processing
 
@@ -189,11 +191,11 @@ To ensure good comparability of your data to our reference values, it is importa
 
 Our Swiss reference values are based on data collected using the GENEActiv (sampling frequency \@ 50 Hz) on the non-dominant wrist. Although the most commonly used accelerometer brands may be comparable (GENEActiv, Movisens Move4, ActiGraph GT3X+, and Axivity AX3) (@migueles2022), large differences in sampling frequency may impact comparability to our reference values (@small2021). The sampling frequency your data were collected with should thus be kept in mind when interpreting the output of our application. There are some algorithms available that may be helpful in this respect (@small2021).
 
-# 6 Citing `rawacceleration`
+# **6 Citing `rawacceleration`**
 
-`rawacceleration` is made available under CC-BY licence. Please refer to the original study when using this package/application in publications or elsewhere:
+Please refer to the original study when using this package/application in publications or elsewhere:
 
-Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A., Hinrichs T., & Schmidt-Trucksaess A. (2023). Reference values for cut-point-free and traditional accelerometer metrics and associations with cardiorespiratory fitness: a cross-sectional study of healthy adults aged 20 to 89 years. medRxiv. doi: ...
+Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A., Hinrichs T., & Schmidt-Trucksaess A. (2023). Reference values for cut-point-free and traditional accelerometer metrics and associations with cardiorespiratory fitness: a cross-sectional study of healthy adults aged 20 to 89 years. medRxiv. doi: <https://doi.org/10.1101/2023.04.19.23288786>
 
 ### 
 
@@ -201,4 +203,4 @@ Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A., Hinrichs T., & 
 
 The `rawacceleration` logo was created using a pictogram from www.smart-servier.com.
 
-# 7 References
+# **7 References**

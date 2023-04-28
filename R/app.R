@@ -49,7 +49,7 @@
 rawaccel <- function() {
   message(
     "Thank you for using rawacceleration. Please refer to the original study when using this application in publications etc.: \n\n",
-    "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A., Hinrichs T., & Schmidt-Trucksaess A. (2023). Reference values for cut-point-free and traditional accelerometer metrics and associations with cardiorespiratory fitness: a cross-sectional study of healthy adults aged 20 to 89 years. medRxiv. doi: ...\n"
+    "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A., Hinrichs T., & Schmidt-Trucksaess A. (2023). Reference values for cut-point-free and traditional accelerometer metrics and associations with cardiorespiratory fitness: a cross-sectional study of healthy adults aged 20 to 89 years. medRxiv. doi: https://doi.org/10.1101/2023.04.19.23288786\n"
   )
 
 
@@ -152,7 +152,7 @@ rawaccel <- function() {
                 "Please refer to the original study when using this application in publications etc.:"
               ),
               p(
-                "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A., Hinrichs T., & Schmidt-Trucksaess A. (2023). Reference values for cut-point-free and traditional accelerometer metrics and associations with cardiorespiratory fitness: a cross-sectional study of healthy adults aged 20 to 89 years. medRxiv. doi: ..."
+                "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A., Hinrichs T., & Schmidt-Trucksaess A. (2023). Reference values for cut-point-free and traditional accelerometer metrics and associations with cardiorespiratory fitness: a cross-sectional study of healthy adults aged 20 to 89 years. medRxiv. doi: https://doi.org/10.1101/2023.04.19.23288786"
               ),
               p(),
               tags$hr(style = "border-color: black;"),
