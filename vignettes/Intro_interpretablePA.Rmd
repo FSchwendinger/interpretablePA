@@ -1,12 +1,12 @@
 ---
-title: "Interpreting accelerometer data with rawacceleration"
+title: "Interpreting accelerometer data with interpretablePA"
 author: "Fabian Schwendinger"
 output: 
   rmarkdown::html_vignette:
     toc: true
     toc_depth: 2
 vignette: >
-  %\VignetteIndexEntry{Interpreting accelerometer data with rawacceleration}
+  %\VignetteIndexEntry{Interpreting accelerometer data with interpretablePA}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -32,7 +32,7 @@ So far, cut-point-free metrics are difficult to interpret. Adequate reference va
 
 This application supports the use of cut-point-free metrics, namely AvAcc and IG, assessed by wrist-worn triaxial accelerometers and calculated over the 24 h day.
 
-`rawacceleration` will turn abstract numbers into understandable information. This will be achieved by the following two steps:
+`interpretablePA` will turn abstract numbers into understandable information. This will be achieved by the following two steps:
 
 -   classifying the levels of physical activity based on age- and sex-specific reference values
 
@@ -40,39 +40,39 @@ This application supports the use of cut-point-free metrics, namely AvAcc and IG
 
 -   Reference values come from a population sample of 463 healthy adults aged 20 to 89 years in Switzerland who wore the GENEActiv (sampling frequency \@ 50 Hz) on their non-dominant wrist for up to 14 days (Schwendinger et al., 2023)
 
-`rawacceleration` works with data that were processed using the R-package [GGIR](https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html#1_Introduction). It is important that data are processed in a similar manner. For further information about [GGIR](https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html#1_Introduction), please see the package vignette.
+`interpretablePA` works with data that were processed using the R-package [GGIR](https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html#1_Introduction). It is important that data are processed in a similar manner. For further information about [GGIR](https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html#1_Introduction), please see the package vignette.
 
 # **2 Getting started**
 
-## 2.1 Installing `rawacceleration`
+## 2.1 Installing `interpretablePA`
 
-To get started with the `rawacceleration` package, you first need to install it. You can do this by running the following code in R:
+To get started with the `interpretablePA` package, you first need to install it. You can do this by running the following code in R:
 
 `install.packages("remotes")`
 
-`remotes::install_github("FSchwendinger/rawacceleration")`
+`remotes::install_github("FSchwendinger/interpretablePA")`
 
 After the installation is complete, you can load the package using:
 
 ```{r load_package, message = FALSE, warning = FALSE, echo = TRUE, eval = F}
-library(rawacceleration)
+library(interpretablePA)
 ```
 
 ## 2.2 Example call
 
-Once you've loaded the `rawacceleration` package, you can start exploring its capabilities. The package consists of a single function that calls a Shiny application. To see this in action, simply run the following code:
+Once you've loaded the `interpretablePA` package, you can start exploring its capabilities. The package consists of a single function that calls a Shiny application. To see this in action, simply run the following code:
 
 ```{r run_app, message = FALSE, warning = FALSE, echo = TRUE, eval = F}
-rawaccel()
+interpret.pa()
 ```
 
-## 2.3 Accessing `rawacceleration` outside of R and RStudio
+## 2.3 Accessing `interpretablePA` outside of R and RStudio
 
 The Shiny application included in the package can alternatively be accessed directly through the following website: ***tba***
 
-# **3 How to use `rawacceleration`**
+# **3 How to use `interpretablePA`**
 
-The `rawacceleration` package provides a user-friendly application for analysing physical activity data. This application offers several data entry options, including individual-level data, aggregated cohort-level data stratified by sex or non-stratified (cohort means/medians), or raw-level data.
+The `interpretablePA` package provides a user-friendly application for analysing physical activity data. This application offers several data entry options, including individual-level data, aggregated cohort-level data stratified by sex or non-stratified (cohort means/medians), or raw-level data.
 
 Once all required data have been entered and the calculations have been triggered, the results will be provided in a separate panel (panel "**2) View results**"). For the first two data entry options, our percentile curves presented in the manuscript will be plotted. The user's data will be shown in the plot together with the exact percentiles.
 
@@ -88,7 +88,7 @@ These options are presented in a separate panel and provide valuable insights in
 
 ## 3.1 Which parameters should be used?
 
-The reference values deposited in `rawacceleration` are based on the output of [**part 2**](https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html#41_Output_part_2) generated by the R-package GGIR.
+The reference values deposited in `interpretablePA` are based on the output of [**part 2**](https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html#41_Output_part_2) generated by the R-package GGIR.
 
 | Name in GGIR                 | Short description                              |
 |------------------------------|------------------------------------------------|
@@ -115,7 +115,7 @@ Before entering new data and initiating another calculation, do not forget to us
 
 Percentile plots for intensity gradient and average acceleration stratified by sex and age will be produced in panel "**2) View results**" for any of the above described data entry options after pressing "Calculate" (see Figure below). Furthermore, the exact percentiles for the individual or group will be provided. The plots can be downloaded using the "Download" button.
 
-![Example of graphical output (stratified group-level data)](images/Percentile_curves%20(1).png){width="466"}
+![Example of graphical output (stratified group-level data)](images/Percentile_curves.png){width="466"}
 
 ### Translation of results
 
@@ -141,7 +141,7 @@ Panel 3 aims to inform about how changes in the level of physical activity may m
 
 ## 3.3 Raw-level data
 
-This data entry option will allow you to paste data of e.g. your study participants or patients in our .csv template and upload it to `rawacceleration`for further processing.
+This data entry option will allow you to paste data of e.g. your study participants or patients in our .csv template and upload it to `interpretablePA`for further processing.
 
 ! Important: To avoid errors when processing the uploaded .csv file make sure the file does not include empty rows. Missing data should be denoted as 'NA'. The file needs to be comma-separated. Do not use semicolons. Sex needs to be coded as males = m, females = f.
 
@@ -191,7 +191,7 @@ To ensure good comparability of your data to our reference values, it is importa
 
 Our Swiss reference values are based on data collected using the GENEActiv (sampling frequency \@ 50 Hz) on the non-dominant wrist. Although the most commonly used accelerometer brands may be comparable (GENEActiv, Movisens Move4, ActiGraph GT3X+, and Axivity AX3) (@migueles2022), large differences in sampling frequency may impact comparability to our reference values (@small2021). The sampling frequency your data were collected with should thus be kept in mind when interpreting the output of our application. There are some algorithms available that may be helpful in this respect (@small2021).
 
-# **6 Citing `rawacceleration`**
+# **6 Citing `interpretablePA`**
 
 Please refer to the original study when using this package/application in publications or elsewhere:
 
@@ -201,6 +201,6 @@ Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A., Hinrichs T., & 
 
 ### Acknowledgements
 
-The `rawacceleration` logo was created using a pictogram from www.smart-servier.com.
+The `interpretablePA` logo was created using a pictogram from www.smart-servier.com.
 
 # **7 References**

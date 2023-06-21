@@ -16,15 +16,15 @@
     prefix = "www",
     directoryPath = system.file(
       "www",
-      package = "rawacceleration"
+      package = "interpretablePA"
     )
   )
 }
 
 
-#' Unload Function for rawacceleration Package
+#' Unload Function for interpretablePA Package
 #'
-#' This function is called when the rawacceleration package is unloaded. It removes the resource path "www" previously added with \code{\link{.onLoad}} using the \code{\link[shiny]{removeResourcePath}} function from the shiny package.
+#' This function is called when the interpretablePA package is unloaded. It removes the resource path "www" previously added with \code{\link{.onLoad}} using the \code{\link[shiny]{removeResourcePath}} function from the shiny package.
 #'
 #' @param libname character string specifying the path to the library being unloaded.
 #' @param pkgname character string specifying the name of the package being unloaded.

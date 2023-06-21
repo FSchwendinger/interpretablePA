@@ -1,11 +1,11 @@
-#' Function Name: rawaccel()
+#' Function Name: interpret.pa()
 #'
-#' The rawaccel() function is a part of an R application that supports the use of cut-point-free metrics, namely Average Acceleration (AvAcc) and Intensity Gradient (IG), assessed by wrist-worn triaxial accelerometers and calculated over the 24-hour day. This function turns abstract accelerometer data into understandable information by classifying the levels of physical activity based on age- and sex-specific reference values and translating the cut-point-free accelerometer metrics into meaningful outcomes.
+#' The interpret.pa() function is a part of an R application that supports the use of cut-point-free metrics, namely Average Acceleration (AvAcc) and Intensity Gradient (IG), assessed by wrist-worn triaxial accelerometers and calculated over the 24-hour day. This function turns abstract accelerometer data into understandable information by classifying the levels of physical activity based on age- and sex-specific reference values and translating the cut-point-free accelerometer metrics into meaningful outcomes.
 #' @param None Not necessary
 #' @keywords accelerometer human_movement physical_activity
 #' @examples
-#' rawaccel()
-#' The rawaccel() function returns a Shiny application.
+#' interpret.pa()
+#' The interpret.pa() function returns a Shiny application.
 
 
 #==========================================================================================
@@ -46,9 +46,9 @@
 # UI
 #==========================================================================================
 
-rawaccel <- function() {
+interpret.pa <- function() {
   message(
-    "Thank you for using rawacceleration. Please refer to the original study when using this application in publications etc.: \n\n",
+    "Thank you for using interpretablePA. Please refer to the original study when using this application in publications etc.: \n\n",
     "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A., Hinrichs T., & Schmidt-Trucksaess A. (2023). Reference values for cut-point-free and traditional accelerometer metrics and associations with cardiorespiratory fitness: a cross-sectional study of healthy adults aged 20 to 89 years. medRxiv. doi: https://doi.org/10.1101/2023.04.19.23288786\n"
   )
 
@@ -65,10 +65,10 @@ rawaccel <- function() {
       titlePanel(title = div(
         img(
           src = "www/app_logo.png",
-          width = "15%",
-          height = "15%"
+          width = "10%",
+          height = "10%"
         ),
-        strong("{rawacceleration}")
+        strong("{interpretablePA}")
       )),
       div(
         h4("Making cut-point-free accelerometer metrics interpretable"),
@@ -103,7 +103,7 @@ rawaccel <- function() {
     namely AvAcc and IG, assessed by wrist-worn triaxial accelerometers and calculated over the 24 h day."
               ),
               p(
-                tags$i(strong("rawacceleration")),
+                tags$i(strong("interpretablePA")),
                 "will turn abstract numbers into understandable information. This will be achieved by the following two steps:"
               ),
               HTML(
@@ -124,14 +124,14 @@ rawaccel <- function() {
               tags$hr(style = "border-color: black;"),
               h3("Usage"),
               p(
-                tags$i(strong("rawacceleration")),
+                tags$i(strong("interpretablePA")),
                 " works with data that were processed using the R-package",
                 tags$a(href = "https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html#1_Introduction", " GGIR"),
                 ". It is important that data are processed in a similar manner."
               ),
               p(
                 "To start using ",
-                tags$i(strong("rawacceleration")),
+                tags$i(strong("interpretablePA")),
                 ", move to tab ",
                 strong("'1) User data'. "),
                 "We provide you with three options for entering data:"
@@ -146,7 +146,7 @@ rawaccel <- function() {
 
               tags$hr(style = "border-color: black;"),
               h3("Citing", tags$i(strong(
-                "rawacceleration"
+                "interpretablePA"
               )),  "and the underlying data"),
               p(
                 "Please refer to the original study when using this application in publications etc.:"
@@ -162,7 +162,7 @@ rawaccel <- function() {
               ),
               p(
                 "If you have queries regarding ",
-                tags$i(strong("rawacceleration")),
+                tags$i(strong("interpretablePA")),
                 "or are interested in contributing, feel free to contact us via e-mail."
               ),
               a(
@@ -214,7 +214,7 @@ rawaccel <- function() {
           p(
             tags$span(style = "color:red", strong("!")),
             "Be aware that ",
-            tags$i(strong("rawacceleration")),
+            tags$i(strong("interpretablePA")),
             "is currently only meant for data of adults between 20 to 90 years of age. Data of e.g. children and adolescents may be implemented in the future. If you are interested in contributing, feel free to contact us (see Introduction panel)."
           )
         ),
@@ -321,7 +321,7 @@ rawaccel <- function() {
           p(
             tags$span(style = "color:red", strong("!")),
             "Be aware that ",
-            tags$i(strong("rawacceleration")),
+            tags$i(strong("interpretablePA")),
             "is currently only meant for data of adults between 20 to 90 years of age. Data of e.g. children and adolescents may be implemented in the future. If you are interested in contributing, feel free to contact us (see Introduction panel)."
           )
         ),
@@ -533,7 +533,7 @@ rawaccel <- function() {
           p(
             tags$span(style = "color:red", strong("!")),
             "Be aware that ",
-            tags$i(strong("rawacceleration")),
+            tags$i(strong("interpretablePA")),
             "is currently only meant for data of adults between 20 to 90 years of age. Data of e.g. children and adolescents may be implemented in the future. If you are interested in contributing, feel free to contact us (see Introduction panel)."
           ),
           p(
@@ -976,7 +976,7 @@ rawaccel <- function() {
       ),
       p(
         "This is work in progress. A function that enables downloading reports will be available in the next version of",
-        tags$i(strong("rawacceleration")),
+        tags$i(strong("interpretablePA")),
         ".",
         "Stay tuned."
       ),
@@ -1125,7 +1125,7 @@ server <- function(input, output, session) {
   # Create a downloadable template
   #------------------------------------------------------------------------------------------
 output$download_template <- downloadHandler(
-  filename = "Template_rawacceleration.csv",
+  filename = "Template_interpretablePA.csv",
   content = function(file) {
     df <- data.frame(matrix(ncol = 5, nrow=0))
     colnames(df) <- c("ID", "avacc","ig","age","sex")
@@ -1344,8 +1344,8 @@ output$download_template <- downloadHandler(
 
       # Calculate avacc and ig as percentage of predicted
 
-      mutate(avacc_perc_pred = round(avacc/cent50_avacc[i]*100, 2)) %>%
-      mutate(ig_perc_pred = round(ig/cent50_ig[i]*100,2)) %>%
+      mutate(avacc_perc_pred = round(abs(cent50_avacc[i])/abs(avacc)*100, 2)) %>%
+      mutate(ig_perc_pred = round(abs(cent50_ig[i])/abs(ig)*100,2)) %>%
       mutate(avacc_z = round(z.scores(mod_avacc, x= age, y= avacc),2)) %>%
       mutate(ig_z = round(z.scores(mod_ig, x = age, y= ig),2))
 
@@ -5112,7 +5112,7 @@ isolate(paste0(datasetInput_b()$walk_slw, " min"))
 
   output$report <- downloadHandler(
     # For PDF output, change this to "report.pdf"
-    filename = "rawacceleration_report.pdf",
+    filename = "interpretablePA_report.pdf",
     content = function(file) {
       # Copy the report file to a temporary directory before processing it, in
       # case we don't have write permissions to the current working dir (which

@@ -1,4 +1,4 @@
-Interpreting cut-point-free accelerometer data using rawacceleration
+Interpreting cut-point-free accelerometer data using interpretablePA
 ================
 
 -   [Project description](#project-description)
@@ -22,7 +22,7 @@ Interpreting cut-point-free accelerometer data using rawacceleration
 
 ### Target audience
 
-`rawacceleration` was created for researchers and clinicians interested
+`interpretablePA` was created for researchers and clinicians interested
 in measuring human movement using raw-acceleration accelerometers in
 various populations or individuals.
 
@@ -34,14 +34,14 @@ to assess physical activity. AvAcc and IG have been shown to be a viable
 alternative to traditional metrics and are strongly related to various
 health outcomes.
 
-The `rawacceleration` package contains an application that can classify
+The `interpretablePA` package contains an application that can classify
 physical activity levels based on age- and sex-specific reference values
 and translate cut-point-free accelerometer metrics into meaningful
 outcomes. Reference values are based on a population sample of 463
 healthy adults aged 20 to 89 years in Switzerland who wore the GENEActiv
 on their non-dominant wrist for up to 14 days.
 
-`rawacceleration` requires data processed using the R-package GGIR in a
+`interpretablePA` requires data processed using the R-package GGIR in a
 similar manner. GGIR supports the processing of multi-day raw
 accelerometer data for physical activity and sleep research. See the
 GGIR package
@@ -55,19 +55,19 @@ You can install the package from GitHub by typing the following:
 ``` r
 install.packages("remotes")
 
-remotes::install_github("FSchwendinger/rawacceleration")
+remotes::install_github("FSchwendinger/interpretablePA")
 ```
 
-After installation, load it in R using `library(rawacceleration)` and
-start the application by running `rawaccel()`.
+After installation, load it in R using `library(interpretablePA)` and
+start the application by running `interpret.pa()`.
 
 ## Examples
 
 The below images will give you some insights into the package. A typical
 workflow could be:
 
-1.  The user run installs and loads `rawacceleration` and runs
-    `rawaccel()`. This starts the application.
+1.  The user run installs and loads `interpretablePA` and runs
+    `interpret.pa()`. This starts the application.
 
 2.  The user decides what data format they want to enter (data of an
     individual, pooled means/medians of a whole study cohort that are

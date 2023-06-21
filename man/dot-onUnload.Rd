@@ -2,7 +2,7 @@
 % Please edit documentation in R/temp.R, R/www.R
 \name{.onUnload}
 \alias{.onUnload}
-\title{Unload Function for rawacceleration Package}
+\title{Unload Function for interpretablePA Package}
 \usage{
 .onUnload(libname, pkgname)
 
@@ -14,7 +14,7 @@
 \item{pkgname}{character string specifying the name of the package being unloaded.}
 }
 \description{
-This function is called when the rawacceleration package is unloaded. It removes the resource path "temp" previously added with \code{\link{.onLoad}} using the \code{\link[shiny]{removeResourcePath}} function from the shiny package.
+This function is called when the interpretablePA package is unloaded. It removes the resource path "temp" previously added with \code{\link{.onLoad}} using the \code{\link[shiny]{removeResourcePath}} function from the shiny package.
 
-This function is called when the rawacceleration package is unloaded. It removes the resource path "www" previously added with \code{\link{.onLoad}} using the \code{\link[shiny]{removeResourcePath}} function from the shiny package.
+This function is called when the interpretablePA package is unloaded. It removes the resource path "www" previously added with \code{\link{.onLoad}} using the \code{\link[shiny]{removeResourcePath}} function from the shiny package.
 }

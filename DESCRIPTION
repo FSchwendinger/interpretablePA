@@ -1,4 +1,4 @@
-Package: rawacceleration
+Package: interpretablePA
 Title: Making Accelerometer Data Interpretable
 Version: 0.0.0.9000
 Authors@R: 
@@ -17,7 +17,7 @@ Authors@R:
     person(given = "Arno", family = "Schmidt-Trucksaess", email = "arno.schmidt-trucksaess@unibas.ch", role = "ctb",
            comment = c(ORCID = "0000-0002-4662-3911")))
 Maintainer: Fabian Schwendinger <fabian.schwendinger@unibas.ch>
-Description: This application supports the use of cut-point-free metrics, namely AvAcc and IG, assessed by wrist-worn triaxial accelerometers.{rawacceleration} will turn abstract numbers into understandable information. This will be achieved by the following two steps: classifying the levels of physical activity based on age- and sex-specific reference values. and translating the cut-point-free accelerometer metrics into meaningful outcomes.
+Description: This application supports the use of cut-point-free metrics, namely AvAcc and IG, assessed by wrist-worn triaxial accelerometers.{interpretablePA} will turn abstract numbers into understandable information. This will be achieved by the following two steps: classifying the levels of physical activity based on age- and sex-specific reference values. and translating the cut-point-free accelerometer metrics into meaningful outcomes.
 License: 'use_lgpl_license(version = 3, include_future = TRUE)'
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

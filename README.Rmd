@@ -1,5 +1,5 @@
 ---
-title: "Interpreting cut-point-free accelerometer data using rawacceleration"
+title: "Interpreting cut-point-free accelerometer data using interpretablePA"
 output: 
   github_document:
         toc: true
@@ -22,15 +22,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Target audience
 
-`rawacceleration` was created for researchers and clinicians interested in measuring human movement using raw-acceleration accelerometers in various populations or individuals.
+`interpretablePA` was created for researchers and clinicians interested in measuring human movement using raw-acceleration accelerometers in various populations or individuals.
 
 ### Practical application
 
 This package supports the use of cut-point-free accelerometer metrics, namely daily average acceleration (AvAcc) and intensity gradient (IG), to assess physical activity. AvAcc and IG have been shown to be a viable alternative to traditional metrics and are strongly related to various health outcomes.
 
-The `rawacceleration` package contains an application that can classify physical activity levels based on age- and sex-specific reference values and translate cut-point-free accelerometer metrics into meaningful outcomes. Reference values are based on a population sample of 463 healthy adults aged 20 to 89 years in Switzerland who wore the GENEActiv on their non-dominant wrist for up to 14 days.
+The `interpretablePA` package contains an application that can classify physical activity levels based on age- and sex-specific reference values and translate cut-point-free accelerometer metrics into meaningful outcomes. Reference values are based on a population sample of 463 healthy adults aged 20 to 89 years in Switzerland who wore the GENEActiv on their non-dominant wrist for up to 14 days.
 
-`rawacceleration` requires data processed using the R-package GGIR in a similar manner. GGIR supports the processing of multi-day raw accelerometer data for physical activity and sleep research. See the GGIR package [vignette](https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html) for further information.
+`interpretablePA` requires data processed using the R-package GGIR in a similar manner. GGIR supports the processing of multi-day raw accelerometer data for physical activity and sleep research. See the GGIR package [vignette](https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html) for further information.
 
 ## Installation
 
@@ -39,17 +39,17 @@ You can install the package from GitHub by typing the following:
 ```{r installation, message = FALSE, warning = FALSE, echo = TRUE, eval = FALSE}
 install.packages("remotes")
 
-remotes::install_github("FSchwendinger/rawacceleration")
+remotes::install_github("FSchwendinger/interpretablePA")
 
 ```
 
-After installation, load it in R using `library(rawacceleration)` and start the application by running `rawaccel()`.
+After installation, load it in R using `library(interpretablePA)` and start the application by running `interpret.pa()`.
 
 ## Examples
 
 The below images will give you some insights into the package. A typical workflow could be:
 
-1.  The user run installs and loads `rawacceleration` and runs `rawaccel()`. This starts the application.
+1.  The user run installs and loads `interpretablePA` and runs `interpret.pa()`. This starts the application.
 
 2.  The user decides what data format they want to enter (data of an individual, pooled means/medians of a whole study cohort that are stratified by sex or not, or data of several individuals with sample size = N) and selects the respective option under panel "*1) User data*".
 
@@ -57,7 +57,7 @@ The below images will give you some insights into the package. A typical workflo
 
     **Figure 1.** One of three data entry options the user can utilize.
 
-    ![](images/rawaccel_1.png "Individual-level data entry option.")
+    ![](images/interpretablePA_1.png "Individual-level data entry option.")
 
 4.  Panels "2) View results" (see Figure 2) and "3) Translation of results" (see Figure 3) are now accessible.
 
@@ -65,13 +65,13 @@ The below images will give you some insights into the package. A typical workflo
 
     **Figure 2.** Example of graphical output. Green dots are the data entered by the user.
 
-    ![](images/rawaccel_2.png)
+    ![](images/interpretablePA_2.png)
 
 6.  In panel "3) Translation of results", the user is provided with information on a) what is necessary for the individual to reach the 50th percentile or increase their physical activity by 5%, b) which changes would be needed to achieve a clinically relevant improvement in cardiorespiratory fitness, and c) how much more physical activity would need to be performed to reduce the risk of death and disease.
 
 **Figure 3.** Example of the translation of results.
 
-![](images/rawaccel_3.png)
+![](images/interpretablePA_3.png)
 
 ## Contact
 
