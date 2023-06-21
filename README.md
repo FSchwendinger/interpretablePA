@@ -82,7 +82,7 @@ workflow could be:
 
     **Figure 1.** One of three data entry options the user can utilize.
 
-    ![](images/rawaccel_1.png "Individual-level data entry option.")
+    ![](images/interpretablePA_1.png "Individual-level data entry option.")
 
 4.  Panels “2) View results” (see Figure 2) and “3) Translation of
     results” (see Figure 3) are now accessible.
@@ -93,7 +93,7 @@ workflow could be:
     **Figure 2.** Example of graphical output. Green dots are the data
     entered by the user.
 
-    ![](images/rawaccel_2.png)
+    ![](images/interpretablePA_2.png)
 
 6.  In panel “3) Translation of results”, the user is provided with
     information on a) what is necessary for the individual to reach the
@@ -104,7 +104,7 @@ workflow could be:
 
 **Figure 3.** Example of the translation of results.
 
-![](images/rawaccel_3.png)
+![](images/interpretablePA_3.png)
 
 ## Contact
 
@@ -116,25 +116,27 @@ Schwendinger](https://dsbg.unibas.ch/de/personen/fabian-schwendinger/)
 
 ## Session info
 
-    ## R version 4.2.0 (2022-04-22)
-    ## Platform: x86_64-apple-darwin17.0 (64-bit)
-    ## Running under: macOS Catalina 10.15.7
+    ## R version 4.1.0 (2021-05-18)
+    ## Platform: x86_64-w64-mingw32/x64 (64-bit)
+    ## Running under: Windows 10 x64 (build 19044)
     ## 
     ## Matrix products: default
-    ## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
-    ## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
     ## 
     ## locale:
-    ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+    ## [1] LC_COLLATE=English_United Kingdom.1252 
+    ## [2] LC_CTYPE=English_United Kingdom.1252   
+    ## [3] LC_MONETARY=English_United Kingdom.1252
+    ## [4] LC_NUMERIC=C                           
+    ## [5] LC_TIME=English_United Kingdom.1252    
     ## 
     ## attached base packages:
     ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] compiler_4.2.0  magrittr_2.0.3  fastmap_1.1.0   cli_3.4.1      
-    ##  [5] tools_4.2.0     htmltools_0.5.3 rstudioapi_0.13 yaml_2.3.5     
-    ##  [9] stringi_1.7.6   rmarkdown_2.14  knitr_1.38      stringr_1.4.0  
-    ## [13] xfun_0.30       digest_0.6.30   rlang_1.0.6     evaluate_0.15
+    ##  [1] compiler_4.1.0  fastmap_1.1.1   cli_3.6.1       tools_4.1.0    
+    ##  [5] htmltools_0.5.5 rstudioapi_0.14 yaml_2.3.7      rmarkdown_2.21 
+    ##  [9] knitr_1.42      xfun_0.38       digest_0.6.31   rlang_1.1.0    
+    ## [13] evaluate_0.20
 
 ## License
 
