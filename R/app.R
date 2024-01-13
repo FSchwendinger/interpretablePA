@@ -49,7 +49,7 @@
 interpret.pa <- function() {
   message(
     "Thank you for using interpretablePA. Please refer to the original study when using this application in publications etc.: \n\n",
-    "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A., Hinrichs T., & Schmidt-Trucksaess A. (2023). Reference values for cut-point-free and traditional accelerometer metrics and associations with cardiorespiratory fitness: a cross-sectional study of healthy adults aged 20 to 89 years. medRxiv. doi: https://doi.org/10.1101/2023.04.19.23288786\n"
+    "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V., Hinrichs T., & Schmidt-Trucksaess A. (2024). Accelerometer Metrics: Healthy Adult Reference Values, Associations with Cardiorespiratory Fitness, and Clinical Implications. Medicine and Science in Sports and Exercise,56(2):170-180.  doi: 10.1249/MSS.0000000000003299\n"
   )
 
 
