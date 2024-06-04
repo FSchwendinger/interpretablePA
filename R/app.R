@@ -107,7 +107,7 @@ interpret.pa <- function() {
                 "will turn abstract numbers into understandable information. This will be achieved by the following two steps:"
               ),
               HTML(
-                "<ul><li>classifying the levels of physical activity based on age- and sex-specific reference values</li><li>translating the cut-point-free accelerometer metrics into meaningful outcomes</li><li>Reference values come from a population sample of 463 healthy adults aged 20 to 89 years in Switzerland who wore the GENEActiv (sampling frequency @ 50 Hz) on their non-dominant wrist for up to 14 days (Schwendinger et al., 2023)</li></ul>"
+                "<ul><li>classifying the levels of physical activity based on age- and sex-specific reference values</li><li>translating the cut-point-free accelerometer metrics into meaningful outcomes</li><li>Reference values come from a population sample of 463 healthy adults aged 20 to 89 years in Switzerland who wore the GENEActiv (sampling frequency @ 50 Hz) on their non-dominant wrist for up to 14 days (Schwendinger et al., 2024)</li></ul>"
               ),
               br(),
               p(img(
@@ -1476,7 +1476,7 @@ output$download_template <- downloadHandler(
 
   output$download_perc_pred <- downloadHandler(
 
-    filename = function() {paste0("avacc_ig_perc_pred",  Sys.Date(), ".csv")},
+    filename = function() {paste0("avacc_ig_perc_pred_",  Sys.Date(), ".csv")},
     content = function(file){
       write.table(calc_50_perc_uploaded(), file, row.names = FALSE, sep = ",")
     }
@@ -1793,7 +1793,7 @@ output$download_template <- downloadHandler(
     filename = "Percentile_curves.jpeg",
     content = function(file) {
       # save the plot as a PNG file
-      jpeg(file, width = 4000, height = 3600, res = 600)
+      jpeg(file, width = 6000, height = 5600, res = 600)
       print(plotHolder$plot)
       dev.off()
     }
@@ -1804,7 +1804,7 @@ output$download_template <- downloadHandler(
       filename = "Percentile_curves.jpeg",
       content = function(file) {
         # save the plot as a PNG file
-        jpeg(file, width = 4000, height = 3600, res = 600)
+        jpeg(file, width = 6000, height = 5600, res = 600)
         print(plotHolder$plot)
         dev.off()
       }
@@ -1815,7 +1815,7 @@ output$download_template <- downloadHandler(
         filename = "Percentile_curves.jpeg",
         content = function(file) {
           # save the plot as a PNG file
-          jpeg(file, width = 4000, height = 3600, res = 600)
+          jpeg(file, width = 6000, height = 5600, res = 600)
           print(plotHolder$plot)
           dev.off()
         }
@@ -1826,7 +1826,7 @@ output$download_template <- downloadHandler(
         filename = "Percentile_curves.jpeg",
         content = function(file) {
           # save the plot as a PNG file
-          jpeg(file, width = 4000, height = 3600, res = 600)
+          jpeg(file, width = 6000, height = 5600, res = 600)
           print(plotHolder$plot)
           dev.off()
         }
