@@ -156,11 +156,11 @@ create_plot_i <- function(mod, input_frame) {
     , align = c("v")
   )
 
-  ref_plot <- annotate_figure(
-    ref_plot
-    # , top = text_grob(unique(input_frame$ID), size = 23)
-    , bottom = text_grob(paste0("Created on: ", format(Sys.Date(), "%d.%m.%Y")), size = 12, hjust = 1, x = 1)
-  )
+  # ref_plot <- annotate_figure(
+  #   ref_plot
+  #   # , top = text_grob(unique(input_frame$ID), size = 23)
+  #   , bottom = text_grob(paste0("Created on: ", format(Sys.Date(), "%d.%m.%Y")), size = 12, hjust = 1, x = 1)
+  # )
 
   return(ref_plot)
 
@@ -365,11 +365,11 @@ create_plot_g <- function(mod, input_frame) {
       , widths = 1
     )
 
-  ref_plot <- annotate_figure(
-    ref_plot
-    # , top = text_grob(unique(input_frame$ID), size = 23)
-    , bottom = text_grob(paste0("Created on: ", format(Sys.Date(), "%d.%m.%Y")), size = 12, hjust = 1, x = 1)
-  )
+  # ref_plot <- annotate_figure(
+  #   ref_plot
+  #   # , top = text_grob(unique(input_frame$ID), size = 23)
+  #   , bottom = text_grob(paste0("Created on: ", format(Sys.Date(), "%d.%m.%Y")), size = 12, hjust = 1, x = 1)
+  # )
 
   return(ref_plot)
 

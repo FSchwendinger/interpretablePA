@@ -1343,9 +1343,14 @@ output$download_template <- downloadHandler(
     final_df <- df %>%
 
       # Calculate avacc and ig as percentage of predicted
-
-      mutate(avacc_perc_pred = round(abs(cent50_avacc[i])/abs(avacc)*100, 2)) %>%
-      mutate(ig_perc_pred = round(abs(cent50_ig[i])/abs(ig)*100,2)) %>%
+      mutate(avacc_perc_pred = round(avacc/cent50_avacc[i]*100, 2)) %>%
+      mutate(
+        ig_perc_pred = ifelse(
+          ig != cent50_ig[i],
+          100 + round((cent50_ig[i] - ig) / cent50_ig[i] * 100, 2),
+          100
+      )
+               ) %>% 
       mutate(avacc_z = round(z.scores(mod_avacc, x= age, y= avacc),2)) %>%
       mutate(ig_z = round(z.scores(mod_ig, x = age, y= ig),2))
 
@@ -1471,7 +1476,7 @@ output$download_template <- downloadHandler(
 
   output$download_perc_pred <- downloadHandler(
 
-    filename = function() {paste0("avacc_ig_perc_pred.csv",  Sys.Date(), ".csv")},
+    filename = function() {paste0("avacc_ig_perc_pred",  Sys.Date(), ".csv")},
     content = function(file){
       write.table(calc_50_perc_uploaded(), file, row.names = FALSE, sep = ",")
     }
@@ -1785,10 +1790,10 @@ output$download_template <- downloadHandler(
 
   observeEvent(input$Calculate_i, {
   output$download_plot <- downloadHandler(
-    filename = "Percentile_curves.png",
+    filename = "Percentile_curves.jpeg",
     content = function(file) {
       # save the plot as a PNG file
-      png(file)
+      jpeg(file, width = 4000, height = 3600, res = 600)
       print(plotHolder$plot)
       dev.off()
     }
@@ -1796,10 +1801,10 @@ output$download_template <- downloadHandler(
 
   observeEvent(input$Calculate_g, {
     output$download_plot <- downloadHandler(
-      filename = "Percentile_curves.png",
+      filename = "Percentile_curves.jpeg",
       content = function(file) {
         # save the plot as a PNG file
-        png(file)
+        jpeg(file, width = 4000, height = 3600, res = 600)
         print(plotHolder$plot)
         dev.off()
       }
@@ -1807,10 +1812,10 @@ output$download_template <- downloadHandler(
 
     observeEvent(input$Calculate_b, {
       output$download_plot <- downloadHandler(
-        filename = "Percentile_curves.png",
+        filename = "Percentile_curves.jpeg",
         content = function(file) {
           # save the plot as a PNG file
-          png(file)
+          jpeg(file, width = 4000, height = 3600, res = 600)
           print(plotHolder$plot)
           dev.off()
         }
@@ -1818,10 +1823,10 @@ output$download_template <- downloadHandler(
 
     observeEvent(input$Calculate_r, {
       output$download_plot <- downloadHandler(
-        filename = "Percentile_curves.png",
+        filename = "Percentile_curves.jpeg",
         content = function(file) {
           # save the plot as a PNG file
-          png(file)
+          jpeg(file, width = 4000, height = 3600, res = 600)
           print(plotHolder$plot)
           dev.off()
         }
