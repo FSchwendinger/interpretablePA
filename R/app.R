@@ -5150,3 +5150,158 @@ isolate(paste0(datasetInput_b()$walk_slw, " min"))
 shinyApp(ui = ui, server = server)
 
 }
+
+
+
+#' Combine Subject Data with GGIR Output and Predict Centiles
+#'
+#' This function integrates subject demographic data with GGIR part 2 summary output,
+#' and predicts age- and sex-specific centiles for average acceleration (AvAcc) and
+#' intensity gradient (IG) using internal reference datasets included in the package.
+#' The merged data is written to the specified output path.
+#'
+#' @param dat_path Character. Path to the file containing subject characteristics (CSV or Excel).
+#' @param part2_path Character. Path to the GGIR `part2_summary.csv` file.
+#' @param output_path Character. Full path where the output CSV should be saved.
+#' @param col_id Character. Column name for participant ID.
+#' @param col_sex Character. Column name for sex.
+#' @param col_age Character. Column name for age.
+#' @param sex_code_male Character. Encoding for male sex in the dataset (e.g., "0").
+#' @param sex_code_female Character. Encoding for female sex in the dataset (e.g., "1").
+#'
+#' @return A data frame with subject ID, sex, age, AVACC and IG values, and their predicted centiles.
+#'         Also writes the resulting data to a CSV file.
+#'
+#' @import dplyr readxl
+#' @export
+
+interpret.pa.children <- function(dat_path,
+                                         part2_path,
+                                         output_path,
+                                         col_id = "ID",
+                                         col_sex = "sex",
+                                         col_age = "age",
+                                         sex_code_male = "0",
+                                         sex_code_female = "1") {
+  
+  message(
+    "Thank you for using interpretablePA. Please cite the following sources when using this application in publications:\n\n",
+    
+    "Reference values (children):\n",
+    "Fairclough S.J., Stratton G., Ridgers N.D., Boddy L.M., Edwardson C.L. (2023). ",
+    "Age- and sex-specific physical activity centiles across childhood and adolescence: ",
+    "a pooled analysis of accelerometer data from 11 countries. ",
+    "International Journal of Behavioral Nutrition and Physical Activity, 20, 127. ",
+    "https://doi.org/10.1186/s12966-023-01435-z\n\n",
+    
+    "General package reference:\n",
+    "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V., Hinrichs T., & Schmidt-Trucksäss A. (2024). ",
+    "Accelerometer Metrics: Healthy Adult Reference Values, Associations with Cardiorespiratory Fitness, and Clinical Implications. ",
+    "Medicine and Science in Sports and Exercise, 56(2):170–180. https://doi.org/10.1249/MSS.0000000000003299\n"
+  )
+  
+  # --- Helper: Predict percentile from list-based model ---
+  predict_percentile <- function(age, x_value, model) {
+    ages <- model$ages
+    centiles <- model$centiles
+    values <- model$values
+    
+    if (!is.numeric(age) || !is.numeric(x_value))
+      return(NA)
+    
+    idx <- which.min(abs(ages - age))
+    centile_values <- as.numeric(values[idx, ])
+    
+    # Sort for interpolation
+    ord <- order(centile_values)
+    x_sorted <- centile_values[ord]
+    y_sorted <- centiles[ord]
+    
+    if (x_value < min(x_sorted, na.rm = TRUE)) {
+      return("below 3rd percentile")
+    } else if (x_value > max(x_sorted, na.rm = TRUE)) {
+      return("above 95th percentile")
+    } else {
+      result <- approx(
+        x = x_sorted,
+        y = y_sorted,
+        xout = x_value,
+        rule = 2
+      )$y
+      return(round(result, 1))
+    }
+  }
+  
+  # --- Extract only relevant models from model_list ---
+  fairclough_model_list <- model_list[grepl("^fairclough_centile_", names(model_list))]
+  
+  get_model <- function(metric, sex) {
+    name <- paste0("fairclough_centile_", metric, "_", as.character(sex))
+    model <- fairclough_model_list[[name]]
+    if (is.null(model))
+      stop("Model not found: ", name)
+    if (!all(c("ages", "centiles", "values") %in% names(model)))
+      stop("Model structure invalid: ", name)
+    return(model)
+  }
+  
+  # --- Load subject characteristics ---
+  ext <- tolower(tools::file_ext(dat_path))
+  subject_data <- switch(
+    ext,
+    csv = read.csv(
+      dat_path,
+      colClasses = c(ID = "character"),
+      stringsAsFactors = FALSE
+    ),
+    xls = readxl::read_excel(dat_path),
+    xlsx = readxl::read_excel(dat_path),
+    stop("Unsupported file type.")
+  )
+  
+  subject_data <- within(subject_data, {
+    ID <- as.character(get(col_id))
+    sex <- factor(
+      get(col_sex),
+      levels = c(sex_code_male, sex_code_female),
+      labels = c("m", "f")
+    )
+    age <- as.numeric(get(col_age))
+  })
+  subject_data <- dplyr::select(subject_data, ID, sex, age)
+  
+  # --- Load GGIR part 2 summary ---
+  part_2 <- read.csv(part2_path,
+                     colClasses = c(ID = "character"),
+                     stringsAsFactors = FALSE)
+  
+  part_2 <- within(part_2, {
+    ID <- trimws(ID)
+    avacc <- as.numeric(AD_mean_ENMO_mg_0.24hr)
+    ig <- as.numeric(AD_ig_gradient_ENMO_0.24hr)
+  })
+  part_2 <- dplyr::select(part_2, ID, avacc, ig)
+  
+  # --- Merge and predict ---
+  combined_data <- merge(subject_data, part_2, by = "ID")
+  combined_data <- dplyr::filter(combined_data,
+                                 !is.na(sex) & !is.na(age) & !is.na(avacc) & !is.na(ig))
+  
+  combined_data <- combined_data %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      avacc_centile = as.character(predict_percentile(age, avacc, get_model("avacc", sex))),
+      ig_centile    = as.character(predict_percentile(age, ig, get_model("ig", sex)))
+    ) %>%
+    dplyr::ungroup()
+  
+  # --- Save output ---
+  write.csv(combined_data, output_path, row.names = FALSE)
+  cat("CSV file created:", output_path, "\n")
+  
+  return(combined_data)
+}
+
+
+
+

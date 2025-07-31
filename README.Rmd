@@ -28,7 +28,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This package supports the use of cut-point-free accelerometer metrics, namely daily average acceleration (AvAcc) and intensity gradient (IG), to assess physical activity. AvAcc and IG have been shown to be a viable alternative to traditional metrics and are strongly related to various health outcomes.
 
-The `interpretablePA` package contains an application that can classify physical activity levels based on age- and sex-specific reference values and translate cut-point-free accelerometer metrics into meaningful outcomes. Reference values are based on a population sample of 463 healthy adults aged 20 to 89 years in Switzerland who wore the GENEActiv on their non-dominant wrist for up to 14 days.
+### Reference populations
+
+The package provides:
+
+-   A Shiny application for interpreting adult data, based on reference values from a Swiss population (ages 20–89)
+
+-   A function for interpreting children’s data, using reference values from an English youth cohort
 
 `interpretablePA` requires data processed using the R-package GGIR in a similar manner. GGIR supports the processing of multi-day raw accelerometer data for physical activity and sleep research. See the GGIR package [vignette](https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html) for further information.
 
@@ -43,9 +49,19 @@ remotes::install_github("FSchwendinger/interpretablePA")
 
 ```
 
-After installation, load it in R using `library(interpretablePA)` and start the application by running `interpret.pa()`.
+## Applications and Usage
 
-## Examples
+### 1. `interpret.pa()` – Shiny app for adult data
+
+The main entry point is the `interpret.pa()` function, which launches a Shiny application to interactively interpret accelerometer data in adults.
+
+Typical use:
+
+```{r, eval = FALSE}
+interpret.pa()
+```
+
+### Examples
 
 The below images will give you some insights into the package. A typical workflow could be:
 
@@ -72,6 +88,41 @@ The below images will give you some insights into the package. A typical workflo
 **Figure 3.** Example of the translation of results.
 
 ![](images/interpretablePA_3.png)
+
+### 2. `interpret.pa.children()` – Function for children's data
+
+The function `interpret.pa.children()` allows automated batch interpretation of **children’s** AvAcc and IG values against age- and sex-specific reference centiles.
+
+```{r, eval=FALSE}
+interpret.pa.children(
+  dat_path = "child_characteristics.csv",
+  part2_path = "part2_summary.csv",
+  output_path = "children_results.csv",
+  col_id = "ID",
+  col_sex = "sex",
+  col_age = "age",
+  sex_code_male = "0",
+  sex_code_female = "1"
+)
+```
+
+## References
+
+Please cite the appropriate reference depending on which part of the package you use:
+
+-    If you use the **Shiny application** for **adult reference values** (`interpret.pa()`), cite:
+
+>  **Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V., Hinrichs T., & Schmidt-Trucksaess A. (2024).**\
+> *Accelerometer Metrics: Healthy Adult Reference Values, Associations with Cardiorespiratory Fitness, and Clinical Implications.*\
+> Medicine and Science in Sports and Exercise, 56(2), 170–180.\
+> <https://doi.org/10.1249/MSS.0000000000003299>
+
+-   If you use the **function for children’s data** (`interpret.pa.children()`), cite **also**:
+
+>  **Fairclough S.J., Noonan R.J., Rowlands A.V., Boddy L.M., Davies I.G., Ridgers N.D., Mackintosh K.A., & Knowles Z.R. (2023).**\
+> *Centile curves for accelerometer‐assessed physical activity and sedentary time in English children.*\
+> International Journal of Behavioral Nutrition and Physical Activity, 20(1), 1–12.\
+> <https://doi.org/10.1186/s12966-023-01435-z>
 
 ## Contact
 
