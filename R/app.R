@@ -2,6 +2,7 @@
 #'
 #' The interpret.pa() function is a part of an R application that supports the use of cut-point-free metrics, namely Average Acceleration (AvAcc) and Intensity Gradient (IG), assessed by wrist-worn triaxial accelerometers and calculated over the 24-hour day. This function turns abstract accelerometer data into understandable information by classifying the levels of physical activity based on age- and sex-specific reference values and translating the cut-point-free accelerometer metrics into meaningful outcomes.
 #' @param None Not necessary
+#' @seealso \link{vignette("intro_interpretablePA")}
 #' @keywords accelerometer human_movement physical_activity
 #' @examples
 #' interpret.pa()
@@ -5169,9 +5170,11 @@ shinyApp(ui = ui, server = server)
 #' @param sex_code_male Character. Encoding for male sex in the dataset (e.g., "0").
 #' @param sex_code_female Character. Encoding for female sex in the dataset (e.g., "1").
 #'
-#' @return A data frame with subject ID, sex, age, AVACC and IG values, and their predicted centiles.
+#' @return A data frame with subject ID, sex, age, AvAcc and IG values, and their predicted centiles.
 #'         Also writes the resulting data to a CSV file.
 #'
+#' @seealso \link{vignette("interpret-pa-children")}
+
 #' @import dplyr readxl
 #' @export
 

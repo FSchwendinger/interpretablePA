@@ -33,12 +33,15 @@ interpret.pa.children(
 \item{sex_code_female}{Character. Encoding for female sex in the dataset (e.g., "1").}
 }
 \value{
-A data frame with subject ID, sex, age, AVACC and IG values, and their predicted centiles.
+A data frame with subject ID, sex, age, AvAcc and IG values, and their predicted centiles.
 Also writes the resulting data to a CSV file.
 }
 \description{
 This function integrates subject demographic data with GGIR part 2 summary output,
-and predicts age- and sex-specific centiles for average acceleration (AVACC) and
+and predicts age- and sex-specific centiles for average acceleration (AvAcc) and
 intensity gradient (IG) using internal reference datasets included in the package.
 The merged data is written to the specified output path.
+}
+\seealso{
+\link{vignette("interpret-pa-children")}
 }

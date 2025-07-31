@@ -16,6 +16,9 @@ The interpret.pa() function is a part of an R application that supports the use 
 interpret.pa()
 The interpret.pa() function returns a Shiny application.
 }
+\seealso{
+\link{vignette("intro_interpretablePA")}
+}
 \keyword{accelerometer}
 \keyword{human_movement}
 \keyword{physical_activity}
