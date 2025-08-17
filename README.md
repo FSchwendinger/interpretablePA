@@ -10,8 +10,8 @@ Interpreting cut-point-free accelerometer data using interpretablePA
   - [1. `interpret.pa()` – Shiny app for adult
     data](#1-interpretpa--shiny-app-for-adult-data)
   - [Examples](#examples)
-  - [2. `interpret.pa.centiles()` – Function for children’s and adult
-    data](#2-interpretpacentiles--function-for-childrens-and-adult-data)
+  - [2. `interpret.pa.centiles()` – Batch centile
+    interpretation](#2-interpretpacentiles--batch-centile-interpretation)
 - [References](#references)
 - [Contact](#contact)
 - [Session info](#session-info)
@@ -127,11 +127,61 @@ workflow could be:
 
 ![](images/interpretablePA_3.png)
 
-### 2. `interpret.pa.centiles()` – Function for children’s and adult data
+### 2. `interpret.pa.centiles()` – Batch centile interpretation
 
-The function `interpret.pa.centiles()` allows automated batch
-interpretation of AvAcc and IG values against age- and sex-specific
-centiles from different reference populations.
+This function integrates subject demographic data with GGIR part 2
+summary output,  
+and predicts age- and sex-specific centiles for:
+
+- **Average acceleration (AvAcc)**  
+- **Intensity gradient (IG)**
+
+using internal reference datasets included in the package.
+
+The merged data is written to the specified output path, and four
+high-resolution PNG plots (400 DPI) are generated:
+
+1.  AvAcc centile distribution  
+2.  IG centile distribution  
+3.  AvAcc centile vs. age  
+4.  IG centile vs. age
+
+#### How it works
+
+Centiles are computed by comparing each participant’s AvAcc and IG
+values against  
+reference distributions derived from large population datasets.
+Interpolation is  
+used to estimate the centile rank for a given value at the participant’s
+age and sex.
+
+If a participant’s age is outside the valid age range for the selected
+reference set,  
+centile values are marked accordingly and set to `NA` for plotting
+purposes.
+
+#### Supported reference datasets
+
+- **Fairclough et al. (2023)** – Children / adolescents (England, ages
+  5–15)  
+- **Rowlands et al. (2025)** – Adults (UK Biobank, ages 40–80)  
+- **Schwendinger et al. (2025)** – Adults (NHANES, ages 20–90)
+
+#### Key arguments
+
+| Argument | Description |
+|----|----|
+| `dat_path` | Path to subject characteristics (CSV/Excel). If `NULL`, values are taken from `part2_path`. |
+| `part2_path` | Path to the GGIR `part2_summary.csv` file (required). |
+| `output_path` | Path to save the merged results (CSV). If `NULL`, saved next to `part2_path`. |
+| `reference_set` | Reference dataset: `"fairclough"`, `"rowlands"`, or `"nhanes"`. |
+| `col_id` | Column name for participant ID. |
+| `col_sex` | Column name for sex. |
+| `col_age` | Column name for age. |
+| `sex_code_male` | Encoding used for male participants (e.g., `"0"` or `"m"`). |
+| `sex_code_female` | Encoding used for female participants (e.g., `"1"` or `"f"`). |
+| `col_avacc` | Column name for daily average acceleration (default: `AD_mean_ENMO_mg_0.24hr`). |
+| `col_ig` | Column name for intensity gradient (default: `AD_ig_gradient_ENMO_0.24hr`). |
 
 ``` r
 interpretablePA::interpret.pa.centiles(
