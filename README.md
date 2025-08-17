@@ -10,8 +10,8 @@ Interpreting cut-point-free accelerometer data using interpretablePA
   - [1. `interpret.pa()` – Shiny app for adult
     data](#1-interpretpa--shiny-app-for-adult-data)
   - [Examples](#examples)
-  - [2. `interpret.pa.children()` – Function for children’s
-    data](#2-interpretpachildren--function-for-childrens-data)
+  - [2. `interpret.pa.centiles()` – Function for children’s and adult
+    data](#2-interpretpacentiles--function-for-childrens-and-adult-data)
 - [References](#references)
 - [Contact](#contact)
 - [Session info](#session-info)
@@ -79,7 +79,7 @@ adults.
 Typical use:
 
 ``` r
-interpret.pa()
+interpretablePA::interpret.pa()
 ```
 
 ### Examples
@@ -127,24 +127,31 @@ workflow could be:
 
 ![](images/interpretablePA_3.png)
 
-### 2. `interpret.pa.children()` – Function for children’s data
+### 2. `interpret.pa.centiles()` – Function for children’s and adult data
 
-The function `interpret.pa.children()` allows automated batch
-interpretation of **children’s** AvAcc and IG values against age- and
-sex-specific reference centiles.
+The function `interpret.pa.centiles()` allows automated batch
+interpretation of AvAcc and IG values against age- and sex-specific
+centiles from different reference populations.
 
 ``` r
-interpret.pa.children(
-  dat_path = "child_characteristics.csv",
+interpretablePA::interpret.pa.centiles(
   part2_path = "part2_summary.csv",
-  output_path = "children_results.csv",
   col_id = "ID",
   col_sex = "sex",
   col_age = "age",
   sex_code_male = "0",
-  sex_code_female = "1"
+  sex_code_female = "1",
+  reference_set = "nhanes",
+  col_avacc = "AD_mean_ENMO_mg_0.24hr",
+  col_ig = "AD_ig_gradient_ENMO_0.24hr"
 )
 ```
+
+The function produces:
+
+- a CSV file with centile estimates, and
+
+- four PNG plots (centile distributions + centile vs age plots).
 
 ## References
 
@@ -161,16 +168,41 @@ package you use:
 > Medicine and Science in Sports and Exercise, 56(2), 170–180.  
 > <https://doi.org/10.1249/MSS.0000000000003299>
 
-- If you use the **function for children’s data**
-  (`interpret.pa.children()`), cite **also**:
+- If you use the **batch interpretation function**
+  (`interpret.pa.centiles()`), please cite the appropriate reference
+  depending on the selected dataset:
 
-> **Fairclough S.J., Noonan R.J., Rowlands A.V., Boddy L.M., Davies
-> I.G., Ridgers N.D., Mackintosh K.A., & Knowles Z.R. (2023).**  
-> *Centile curves for accelerometer‐assessed physical activity and
-> sedentary time in English children.*  
-> International Journal of Behavioral Nutrition and Physical Activity,
-> 20(1), 1–12.  
-> <https://doi.org/10.1186/s12966-023-01435-z>
+  - **Children / Adolescents (ages 5–15, England):**
+
+    > **Fairclough S.J., Rowlands A.V., del Pozo Cruz B., Crotti M.,
+    > Foweather L., Graves L.E.F., Hurter L., Jones O., MacDonald M.,
+    > McCann D.A., Miller C., Noonan R.J., Owen M.B., Rudd J.R., Taylor
+    > S.L., Tyler R., Boddy L.M. (2023).**  
+    > *Reference values for wrist-worn accelerometer physical activity
+    > metrics in English children and adolescents.*  
+    > *International Journal of Behavioral Nutrition and Physical
+    > Activity*, 20(1), 35.  
+    > <https://doi.org/10.1186/s12966-023-01435-z>
+
+  - **Adults (ages 40–80, UK Biobank):**
+
+    > **Rowlands A.V., Kingsnorth A.P., Hansen B.H., Fairclough S.J.,
+    > Boddy L.M., Maylor B.D., Eckmann H.R., del Pozo Cruz B., Dawkins
+    > N.P., Razieh C., Khunti K., Zaccardi F., Yates T. (2025).**  
+    > *Enhancing clinical and public health interpretation of
+    > accelerometer-assessed physical activity with age-referenced
+    > values based on UK Biobank data.*  
+    > *Journal of Sport and Health Science*, 14, 100977.  
+    > <https://doi.org/10.1016/j.jshs.2024.100977>
+
+  - **Adults (ages 20–90, NHANES):**
+
+    > **Schwendinger F., Infanger D., Lichtenstein E., Hinrichs T.,
+    > Knaier R., Rowlands A.V., Schmidt-Trucksäss A. (2025).**  
+    > *Intensity or volume: the role of physical activity in
+    > longevity.*  
+    > *European Journal of Preventive Cardiology*, 32(1), 10–19.  
+    > <https://doi.org/10.1093/eurjpc/zwae295>
 
 ## Contact
 
@@ -200,52 +232,13 @@ Schwendinger](https://dsbg.unibas.ch/de/personen/fabian-schwendinger/)
     ## tzcode source: internal
     ## 
     ## attached base packages:
-    ## [1] parallel  splines   stats     graphics  grDevices utils     datasets 
-    ## [8] methods   base     
-    ## 
-    ## other attached packages:
-    ##  [1] interpretablePA_0.0.0.9000 readxl_1.4.5              
-    ##  [3] directlabels_2025.5.20     DT_0.33                   
-    ##  [5] shinyjs_2.1.0              shinyBS_0.61.1            
-    ##  [7] shinybusy_0.3.3            fontawesome_0.5.3         
-    ##  [9] ggpubr_0.6.0               scales_1.4.0              
-    ## [11] rms_8.0-0                  Hmisc_5.2-3               
-    ## [13] gamlss_5.4-22              nlme_3.1-168              
-    ## [15] gamlss.dist_6.1-1          gamlss.data_6.0-6         
-    ## [17] shinyalert_3.1.0           shinythemes_1.2.0         
-    ## [19] palmerpenguins_0.1.1       shiny_1.10.0              
-    ## [21] lubridate_1.9.4            forcats_1.0.0             
-    ## [23] stringr_1.5.1              dplyr_1.1.4               
-    ## [25] purrr_1.0.4                readr_2.1.5               
-    ## [27] tidyr_1.3.1                tibble_3.3.0              
-    ## [29] ggplot2_3.5.2              tidyverse_2.0.0           
+    ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] gridExtra_2.3      sandwich_3.1-1     rlang_1.1.6       
-    ##  [4] magrittr_2.0.3     multcomp_1.4-28    polspline_1.1.25  
-    ##  [7] compiler_4.5.0     vctrs_0.6.5        quantreg_6.1      
-    ## [10] quadprog_1.5-8     pkgconfig_2.0.3    fastmap_1.2.0     
-    ## [13] backports_1.5.0    utf8_1.2.6         promises_1.3.3    
-    ## [16] rmarkdown_2.29     tzdb_0.5.0         MatrixModels_0.5-4
-    ## [19] xfun_0.52          jsonlite_2.0.0     later_1.4.2       
-    ## [22] broom_1.0.8        cluster_2.1.8.1    R6_2.6.1          
-    ## [25] stringi_1.8.7      RColorBrewer_1.1-3 car_3.1-3         
-    ## [28] rpart_4.1.24       cellranger_1.1.0   Rcpp_1.0.14       
-    ## [31] knitr_1.50         zoo_1.8-14         base64enc_0.1-3   
-    ## [34] httpuv_1.6.16      Matrix_1.7-3       nnet_7.3-20       
-    ## [37] timechange_0.3.0   tidyselect_1.2.1   yaml_2.3.10       
-    ## [40] rstudioapi_0.17.1  abind_1.4-8        codetools_0.2-20  
-    ## [43] lattice_0.22-6     withr_3.0.2        evaluate_1.0.4    
-    ## [46] foreign_0.8-90     survival_3.8-3     pillar_1.10.2     
-    ## [49] rsconnect_1.5.0    carData_3.0-5      checkmate_2.3.2   
-    ## [52] generics_0.1.4     hms_1.1.3          xtable_1.8-4      
-    ## [55] glue_1.8.0         tools_4.5.0        data.table_1.17.6 
-    ## [58] SparseM_1.84-2     ggsignif_0.6.4     mvtnorm_1.3-3     
-    ## [61] grid_4.5.0         colorspace_2.1-1   htmlTable_2.4.3   
-    ## [64] Formula_1.2-5      cli_3.6.5          gtable_0.3.6      
-    ## [67] rstatix_0.7.2      digest_0.6.37      TH.data_1.1-3     
-    ## [70] htmlwidgets_1.6.4  farver_2.1.2       htmltools_0.5.8.1 
-    ## [73] lifecycle_1.0.4    mime_0.13          MASS_7.3-65
+    ##  [1] compiler_4.5.0    fastmap_1.2.0     cli_3.6.5         tools_4.5.0      
+    ##  [5] htmltools_0.5.8.1 rstudioapi_0.17.1 yaml_2.3.10       rmarkdown_2.29   
+    ##  [9] knitr_1.50        xfun_0.52         digest_0.6.37     rlang_1.1.6      
+    ## [13] evaluate_1.0.4
 
 ## License
 

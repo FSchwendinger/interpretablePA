@@ -125,40 +125,28 @@ Please cite the appropriate reference depending on which part of the package you
 > Medicine and Science in Sports and Exercise, 56(2), 170–180.\
 > <https://doi.org/10.1249/MSS.0000000000003299>
 
--   If you use the **batch interpretation function** (`interpret.pa.centiles()`), please cite the appropriate reference depending on the selected dataset:
+- If you use the **batch interpretation function** (`interpret.pa.centiles()`), please cite the appropriate reference depending on the selected dataset:
 
-    -    **Children / Adolescents (ages 5–15, England)**
+  - **Children / Adolescents (ages 5–15, England):**
 
-        <div>
+    > **Fairclough S.J., Rowlands A.V., del Pozo Cruz B., Crotti M., Foweather L., Graves L.E.F., Hurter L., Jones O., MacDonald M., McCann D.A., Miller C., Noonan R.J., Owen M.B., Rudd J.R., Taylor S.L., Tyler R., Boddy L.M. (2023).**  
+    > *Reference values for wrist-worn accelerometer physical activity metrics in English children and adolescents.*  
+    > *International Journal of Behavioral Nutrition and Physical Activity*, 20(1), 35.  
+    > <https://doi.org/10.1186/s12966-023-01435-z>
 
-        > **Fairclough S.J., Stratton G., Ridgers N.D., Boddy L.M., Edwardson C.L. (2023).**\
-        > *Age- and sex-specific physical activity centiles across childhood and adolescence: a pooled analysis of accelerometer data from 11 countries.*\
-        > *International Journal of Behavioral Nutrition and Physical Activity*, 20, 127.\
-        > <https://doi.org/10.1186/s12966-023-01435-z>
+  - **Adults (ages 40–80, UK Biobank):**
 
-        </div>
+    > **Rowlands A.V., Kingsnorth A.P., Hansen B.H., Fairclough S.J., Boddy L.M., Maylor B.D., Eckmann H.R., del Pozo Cruz B., Dawkins N.P., Razieh C., Khunti K., Zaccardi F., Yates T. (2025).**  
+    > *Enhancing clinical and public health interpretation of accelerometer-assessed physical activity with age-referenced values based on UK Biobank data.*  
+    > *Journal of Sport and Health Science*, 14, 100977.  
+    > <https://doi.org/10.1016/j.jshs.2024.100977>
 
-    -    **Adults (ages 40–80, UK Biobank):**
+  - **Adults (ages 20–90, NHANES):**
 
-        <div>
-
-        > **Rowlands A.V., Kingsnorth A.P., Hansen B.H., Fairclough S.J., Boddy L.M., Maylor B.D., Eckmann H.R., del Pozo Cruz B., Dawkins N.P., Razieh C., Khunti K., Zaccardi F., Yates T. (2025).**\
-        > *Enhancing clinical and public health interpretation of accelerometer-assessed physical activity with age-referenced values based on UK Biobank data.*\
-        > *Journal of Sport and Health Science*, 14, 100977.\
-        > <https://doi.org/10.1016/j.jshs.2024.100977>
-
-        </div>
-
-    -    **Adults (ages 20–90, NHANES):**
-
-    <div>
-
-    > **Schwendinger F., Infanger D., Lichtenstein E., Hinrichs T., Knaier R., Rowlands A.V., Schmidt-Trucksaess A. (2025).**\
-    > *Intensity or volume: the role of physical activity in longevity.*\
-    > *European Journal of Preventive Cardiology*, 32(1), 10–19.\
+    > **Schwendinger F., Infanger D., Lichtenstein E., Hinrichs T., Knaier R., Rowlands A.V., Schmidt-Trucksäss A. (2025).**  
+    > *Intensity or volume: the role of physical activity in longevity.*  
+    > *European Journal of Preventive Cardiology*, 32(1), 10–19.  
     > <https://doi.org/10.1093/eurjpc/zwae295>
-
-    </div>
 
 ## Contact
 
