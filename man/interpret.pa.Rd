@@ -17,7 +17,7 @@ interpret.pa()
 The interpret.pa() function returns a Shiny application.
 }
 \seealso{
-\link{vignette("intro_interpretablePA")}
+\link[vignette:Intro_interpretablePA]{Intro to interpretablePA}
 }
 \keyword{accelerometer}
 \keyword{human_movement}

@@ -2,7 +2,7 @@
 #'
 #' The interpret.pa() function is a part of an R application that supports the use of cut-point-free metrics, namely Average Acceleration (AvAcc) and Intensity Gradient (IG), assessed by wrist-worn triaxial accelerometers and calculated over the 24-hour day. This function turns abstract accelerometer data into understandable information by classifying the levels of physical activity based on age- and sex-specific reference values and translating the cut-point-free accelerometer metrics into meaningful outcomes.
 #' @param None Not necessary
-#' @seealso \link{vignette("intro_interpretablePA")}
+#' @seealso \link[vignette:Intro_interpretablePA]{Intro to interpretablePA}
 #' @keywords accelerometer human_movement physical_activity
 #' @examples
 #' interpret.pa()
@@ -5160,87 +5160,164 @@ shinyApp(ui = ui, server = server)
 #' and predicts age- and sex-specific centiles for average acceleration (AvAcc) and
 #' intensity gradient (IG) using internal reference datasets included in the package.
 #' The merged data is written to the specified output path.
+#' 
+#' Centiles are computed by comparing each participant's AvAcc and IG values against
+#' reference distributions derived from large population datasets. Interpolation is
+#' used to estimate the centile rank for a given value at the participant's age and sex.
+#' If a participant’s age is outside the valid age range for the selected reference set,
+#' centile values are marked accordingly and set to `NA` for plotting purposes.
 #'
-#' @param dat_path Character. Path to the file containing subject characteristics (CSV or Excel).
+#' Supported reference datasets:
+#' - Fairclough et al. (2023) [Children]
+#' - Rowlands et al. (2025) [Adults]
+#' - Schwendinger et al. (2025) NHANES [Adults]
+#'
+#' Key features:
+#' - Users may specify custom column names for AvAcc and IG in GGIR output.
+#' - If no subject data file is provided (`dat_path = NULL`), the function extracts
+#'   subject characteristics (ID, sex, age) directly from the GGIR part 2 file.
+#' - Automatically saves four high-resolution PNG plots (400 DPI) for:
+#'     1. AvAcc centile distribution
+#'     2. IG centile distribution
+#'     3. AvAcc centile vs. age
+#'     4. IG centile vs. age
+#'
+#' @param dat_path Character or NULL. Path to the file containing subject characteristics
+#'        (CSV or Excel). If NULL, subject data will be extracted from `part2_path`.
 #' @param part2_path Character. Path to the GGIR `part2_summary.csv` file.
-#' @param output_path Character. Full path where the output CSV should be saved.
-#' @param col_id Character. Column name for participant ID.
-#' @param col_sex Character. Column name for sex.
-#' @param col_age Character. Column name for age.
-#' @param sex_code_male Character. Encoding for male sex in the dataset (e.g., "0").
-#' @param sex_code_female Character. Encoding for female sex in the dataset (e.g., "1").
+#' @param output_path Character or NULL. Full path where the output CSV should be saved. If NULL, CSV will be saved to part2_path. 
+#'                    Default is NULL.
+#' @param reference_set Character. One of "fairclough", "rowlands", or "nhanes".
+#' @param col_id Character. Column name for participant ID in subject data and/or part 2 file. If both files are specified, IDs need to match between files.
+#' @param col_sex Character. Column name for sex in subject data and/or part 2 file.
+#' @param col_age Character. Column name for age in subject data and/or part 2 file.
+#' @param sex_code_male Character. Encoding for male sex in the dataset (e.g., "0" or "m").
+#' @param sex_code_female Character. Encoding for female sex in the dataset (e.g., "1" or "f").
+#' @param col_avacc Character. Column name for average acceleration in GGIR output.
+#'        Default is "AD_mean_ENMO_mg_0.24hr".
+#' @param col_ig Character. Column name for intensity gradient in GGIR output.
+#'        Default is "AD_ig_gradient_ENMO_0.24hr".
 #'
 #' @return A data frame with subject ID, sex, age, AvAcc and IG values, and their predicted centiles.
 #'         Also writes the resulting data to a CSV file.
 #'
-#' @seealso \link{vignette("interpret-pa-children")}
-
-#' @import dplyr readxl
+#' In addition:
+#' - Saves the resulting data to a CSV file.
+#' - Saves four PNG plots (400 DPI) in the same directory as `output_path` or `part2_path`.
+#'
+#' @seealso \link[vignette:interpret-pa-centiles]{Vignette: interpret-pa-centiles}
+#'
+#' @import dplyr readxl ggplot2 viridis
 #' @export
 
-interpret.pa.children <- function(dat_path,
-                                         part2_path,
-                                         output_path,
-                                         col_id = "ID",
-                                         col_sex = "sex",
-                                         col_age = "age",
-                                         sex_code_male = "0",
-                                         sex_code_female = "1") {
+
+interpret.pa.centiles <- function(dat_path = NULL,
+                                  part2_path,
+                                  output_path = part2_path,
+                                  col_id = "ID",
+                                  col_sex = "sex",
+                                  col_age = "age",
+                                  sex_code_male = "0",
+                                  sex_code_female = "1",
+                                  reference_set = "nhanes",
+                                  col_avacc = "AD_mean_ENMO_mg_0.24hr",
+                                  col_ig = "AD_ig_gradient_ENMO_0.24hr") {
   
-  message(
-    "Thank you for using interpretablePA. Please cite the following sources when using this application in publications:\n\n",
-    
-    "Reference values (children):\n",
-    "Fairclough S.J., Stratton G., Ridgers N.D., Boddy L.M., Edwardson C.L. (2023). ",
-    "Age- and sex-specific physical activity centiles across childhood and adolescence: ",
-    "a pooled analysis of accelerometer data from 11 countries. ",
-    "International Journal of Behavioral Nutrition and Physical Activity, 20, 127. ",
-    "https://doi.org/10.1186/s12966-023-01435-z\n\n",
-    
-    "General package reference:\n",
-    "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V., Hinrichs T., & Schmidt-Trucksäss A. (2024). ",
-    "Accelerometer Metrics: Healthy Adult Reference Values, Associations with Cardiorespiratory Fitness, and Clinical Implications. ",
-    "Medicine and Science in Sports and Exercise, 56(2):170–180. https://doi.org/10.1249/MSS.0000000000003299\n"
+  reference_set <- tolower(reference_set)
+  
+  # --- Reference-specific citation messages ---
+  if (reference_set == "fairclough") {
+    message(
+      "Thank you for using interpretablePA.\n\nPlease cite the following:\n\n",
+      "Fairclough S.J., Stratton G., Ridgers N.D., Boddy L.M., Edwardson C.L. (2023). ",
+      "Age- and sex-specific physical activity centiles across childhood and adolescence: ",
+      "a pooled analysis of accelerometer data from 11 countries. ",
+      "International Journal of Behavioral Nutrition and Physical Activity, 20, 127. https://doi.org/10.1186/s12966-023-01435-z\n",
+      
+      "General package reference:\n",
+      "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V., Hinrichs T., & Schmidt-Trucksäss A. (2024). ",
+      "Accelerometer Metrics: Healthy Adult Reference Values, Associations with Cardiorespiratory Fitness, and Clinical Implications. ",
+      "Medicine and Science in Sports and Exercise, 56(2):170–180. https://doi.org/10.1249/MSS.0000000000003299\n"
+    )
+  } else if (reference_set == "rowlands") {
+    message(
+      "Thank you for using interpretablePA.\n\nPlease cite the following:\n\n",
+      "Rowlands A.V., Kingsnorth A.P., Hansen B.H., Fairclough S.J., Boddy L.M., Maylor B.D., Eckmann H.R., del Pozo Cruz B., Dawkins N.P., Razieh C., Khunti K., Zaccardi F., Yates T. (2025). ",
+      "Enhancing clinical and public health interpretation of accelerometer-assessed physical activity with age-referenced values based on UK Biobank data. ",
+      "Journal of Sport and Health Science, 14, 100977. https://doi.org/10.1016/j.jshs.2024.100977\n\n",
+      
+      "General package reference:\n",
+      "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V., Hinrichs T., & Schmidt-Trucksäss A. (2024). ",
+      "Accelerometer Metrics: Healthy Adult Reference Values, Associations with Cardiorespiratory Fitness, and Clinical Implications. ",
+      "Medicine and Science in Sports and Exercise, 56(2):170–180. https://doi.org/10.1249/MSS.0000000000003299\n"
+    )
+  } else if (reference_set == "nhanes") {
+    message(
+      "Thank you for using interpretablePA.\n\nPlease cite the following:\n\n",
+      "Schwendinger F., Infanger D., Lichtenstein E., Hinrichs T., Knaier R., Rowlands A.V., Schmidt-Trucksäss A. (2025). ",
+      "Intensity or volume: the role of physical activity in longevity. ",
+      "European Journal of Preventive Cardiology, 32(1):10–19. https://doi.org/10.1093/eurjpc/zwae295\n\n",
+      
+      "General package reference:\n",
+      "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V., Hinrichs T., & Schmidt-Trucksäss A. (2024). ",
+      "Accelerometer Metrics: Healthy Adult Reference Values, Associations with Cardiorespiratory Fitness, and Clinical Implications. ",
+      "Medicine and Science in Sports and Exercise, 56(2):170–180. https://doi.org/10.1249/MSS.0000000000003299\n"
+    )
+  } else {
+    warning("Unsupported reference set.")
+  }
+  
+  # --- Centile bounds and age ranges ---
+  centile_bounds <- switch(reference_set,
+                           fairclough = c(3, 97),
+                           rowlands = c(3, 97),
+                           nhanes = c(5, 95),
+                           stop("Unsupported reference set.")
   )
   
-  # --- Helper: Predict percentile from list-based model ---
-  predict_percentile <- function(age, x_value, model) {
+  age_range <- switch(reference_set,
+                      fairclough = c(5, 15),
+                      rowlands = c(40, 80),
+                      nhanes = c(20, 90),
+                      stop("Unsupported reference set.")
+  )
+  
+  # --- Helper function for percentile prediction ---
+  predict_percentile <- function(age, x_value, model, lower_bound, upper_bound, age_range) {
+    if (!is.numeric(age) || !is.numeric(x_value))
+      return(NA)
+    
+    if (age < age_range[1] || age > age_range[2]) {
+      return("age out of range")
+    }
+    
     ages <- model$ages
     centiles <- model$centiles
     values <- model$values
     
-    if (!is.numeric(age) || !is.numeric(x_value))
-      return(NA)
-    
     idx <- which.min(abs(ages - age))
     centile_values <- as.numeric(values[idx, ])
     
-    # Sort for interpolation
     ord <- order(centile_values)
     x_sorted <- centile_values[ord]
     y_sorted <- centiles[ord]
     
     if (x_value < min(x_sorted, na.rm = TRUE)) {
-      return("below 3rd percentile")
+      return(paste0("below ", lower_bound, "th percentile"))
     } else if (x_value > max(x_sorted, na.rm = TRUE)) {
-      return("above 95th percentile")
+      return(paste0("above ", upper_bound, "th percentile"))
     } else {
-      result <- approx(
-        x = x_sorted,
-        y = y_sorted,
-        xout = x_value,
-        rule = 2
-      )$y
+      result <- approx(x = x_sorted, y = y_sorted, xout = x_value, rule = 2)$y
       return(round(result, 1))
     }
   }
   
-  # --- Extract only relevant models from model_list ---
-  fairclough_model_list <- model_list[grepl("^fairclough_centile_", names(model_list))]
+  # --- Load models ---
+  model_list_filtered <- model_list[grepl(paste0("^", reference_set, "_centile_"), names(model_list))]
   
   get_model <- function(metric, sex) {
-    name <- paste0("fairclough_centile_", metric, "_", as.character(sex))
-    model <- fairclough_model_list[[name]]
+    name <- paste0(reference_set, "_centile_", metric, "_", as.character(sex))
+    model <- model_list_filtered[[name]]
     if (is.null(model))
       stop("Model not found: ", name)
     if (!all(c("ages", "centiles", "values") %in% names(model)))
@@ -5248,62 +5325,175 @@ interpret.pa.children <- function(dat_path,
     return(model)
   }
   
-  # --- Load subject characteristics ---
-  ext <- tolower(tools::file_ext(dat_path))
-  subject_data <- switch(
-    ext,
-    csv = read.csv(
-      dat_path,
-      colClasses = c(ID = "character"),
-      stringsAsFactors = FALSE
-    ),
-    xls = readxl::read_excel(dat_path),
-    xlsx = readxl::read_excel(dat_path),
-    stop("Unsupported file type.")
-  )
-  
-  subject_data <- within(subject_data, {
-    ID <- as.character(get(col_id))
-    sex <- factor(
-      get(col_sex),
-      levels = c(sex_code_male, sex_code_female),
-      labels = c("m", "f")
-    )
-    age <- as.numeric(get(col_age))
-  })
-  subject_data <- dplyr::select(subject_data, ID, sex, age)
-  
-  # --- Load GGIR part 2 summary ---
-  part_2 <- read.csv(part2_path,
-                     colClasses = c(ID = "character"),
-                     stringsAsFactors = FALSE)
-  
+  # --- Load GGIR part 2 summary (with optional subject data) ---
+  part_2 <- read.csv(part2_path, colClasses = c(ID = "character"), stringsAsFactors = FALSE)
   part_2 <- within(part_2, {
     ID <- trimws(ID)
-    avacc <- as.numeric(AD_mean_ENMO_mg_0.24hr)
-    ig <- as.numeric(AD_ig_gradient_ENMO_0.24hr)
+    avacc <- as.numeric(get(col_avacc))
+    ig <- as.numeric(get(col_ig))
   })
-  part_2 <- dplyr::select(part_2, ID, avacc, ig)
+  
+  if (is.null(dat_path)) {
+    # Extract subject data from part2 if no dat_path provided
+    if (!all(c(col_id, col_sex, col_age) %in% names(part_2))) {
+      stop("Subject columns not found in part2 file: ", paste(c(col_id, col_sex, col_age), collapse = ", "))
+    }
+    part_2 <- within(part_2, {
+      ID <- as.character(get(col_id))
+      sex <- factor(get(col_sex), levels = c(sex_code_male, sex_code_female), labels = c("m", "f"))
+      age <- as.numeric(get(col_age))
+    })
+    subject_data <- dplyr::select(part_2, ID, sex, age, avacc, ig)
+    
+  } else {
+    # Load subject data from separate file
+    ext <- tolower(tools::file_ext(dat_path))
+    subject_data <- switch(
+      ext,
+      csv = read.csv(dat_path, colClasses = c(ID = "character"), stringsAsFactors = FALSE),
+      xls = readxl::read_excel(dat_path),
+      xlsx = readxl::read_excel(dat_path),
+      stop("Unsupported file type.")
+    )
+    subject_data <- within(subject_data, {
+      ID <- as.character(get(col_id))
+      sex <- factor(get(col_sex), levels = c(sex_code_male, sex_code_female), labels = c("m", "f"))
+      age <- as.numeric(get(col_age))
+    })
+    subject_data <- dplyr::select(subject_data, ID, sex, age)
+    
+    part_2 <- dplyr::select(part_2, ID, avacc, ig)
+    subject_data <- merge(subject_data, part_2, by = "ID")
+  }
   
   # --- Merge and predict ---
-  combined_data <- merge(subject_data, part_2, by = "ID")
-  combined_data <- dplyr::filter(combined_data,
-                                 !is.na(sex) & !is.na(age) & !is.na(avacc) & !is.na(ig))
+  combined_data <- subject_data
   
   combined_data <- combined_data %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
-      avacc_centile = as.character(predict_percentile(age, avacc, get_model("avacc", sex))),
-      ig_centile    = as.character(predict_percentile(age, ig, get_model("ig", sex)))
+      # Check for missing input values
+      has_all_data = all(!is.na(sex), !is.na(age), !is.na(avacc), !is.na(ig)),
+      
+      # Only compute if data is present, else NA
+      avacc_centile = if (has_all_data) {
+        as.character(predict_percentile(age, avacc, get_model("avacc", sex), centile_bounds[1], centile_bounds[2], age_range))
+      } else { NA_character_ },
+      
+      ig_centile = if (has_all_data) {
+        as.character(predict_percentile(age, ig, get_model("ig", sex), centile_bounds[1], centile_bounds[2], age_range))
+      } else { NA_character_ },
+      
+      age_warning = if (!is.na(age) && (age < age_range[1] || age > age_range[2])) {
+        paste0("age out of range for ", reference_set, " (", age_range[1], "-", age_range[2], ")")
+      } else {
+        ""
+      }
     ) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    dplyr::select(ID, sex, age, avacc, ig, avacc_centile, ig_centile, age_warning)
   
-  # --- Save output ---
-  write.csv(combined_data, output_path, row.names = FALSE)
-  cat("CSV file created:", output_path, "\n")
+  combined_data <- combined_data %>%
+    mutate(
+      avacc_centile_num = suppressWarnings(as.numeric(avacc_centile)),
+      ig_centile_num = suppressWarnings(as.numeric(ig_centile))
+    )
+  
+  
+  # Extract directory from output_path
+  output_dir <- dirname(output_path)
+  
+  # Define fixed file name
+  csv_fixed_path <- file.path(output_dir, "centile_results.csv")
+  
+  # Write the CSV
+  write.csv(combined_data, csv_fixed_path, row.names = FALSE)  
+  
+  # Correct confirmation message
+  cat("CSV file created:", csv_fixed_path, "\n")
+  
+  
+  # --- Generate plots ---
+  # --- Plotting functions ---
+  plot_centile_distribution <- function(data, centile_col, metric_label = "Centile") {
+    plot_data <- data %>%
+      dplyr::filter(!is.na({{ centile_col }}), is.finite({{ centile_col }}), !is.na(sex))
+    
+    n <- nrow(plot_data)
+    
+    ggplot(plot_data, aes(x = {{ centile_col }}, fill = sex)) +
+      geom_histogram(binwidth = 5, position = "identity", color = "black", alpha = 0.6) +
+      geom_density(aes(y = after_stat(count)), alpha = 0.3, position = "identity") +
+      scale_fill_viridis_d(option = "D", begin = 0.2, end = 0.8, name = "Sex") +
+      labs(x = metric_label, y = "Count",
+           title = paste("Distribution of", metric_label),
+           subtitle = paste("n =", n, "participants")) +
+      facet_wrap(~sex) +
+      theme_minimal(base_size = 14)
+  }
+  
+  
+  
+  
+  plot_centile_vs_age <- function(data, centile_col, metric_label = "Centile") {
+    plot_data <- data %>%
+      dplyr::filter(!is.na(age), is.finite(age),
+                    !is.na({{ centile_col }}), is.finite({{ centile_col }}),
+                    !is.na(sex))
+    
+    n <- nrow(plot_data)
+    
+    ggplot(plot_data, aes(x = age, y = {{ centile_col }}, color = sex)) +
+      geom_point(alpha = 0.6, size = 2) +
+      geom_smooth(method = "loess", se = TRUE, linewidth = 1) +
+      scale_color_viridis_d(option = "D", begin = 0.2, end = 0.8, name = "Sex") +
+      labs(x = "Age (years)", y = metric_label,
+           title = paste(metric_label, "vs Age"),
+           subtitle = paste("n =", n, "participants")) +
+      facet_wrap(~sex) +
+      theme_minimal(base_size = 14)
+  }
+  
+  
+  
+  p1 <- plot_centile_distribution(combined_data, avacc_centile_num, "AvAcc centile")
+  p2 <- plot_centile_distribution(combined_data, ig_centile_num, "IG centile")
+  p3 <- plot_centile_vs_age(combined_data, avacc_centile_num, "AvAcc centile")
+  p4 <- plot_centile_vs_age(combined_data, ig_centile_num, "IG centile")
+  
+  # --- Create output filenames based on output_path ---
+  base_name <- tools::file_path_sans_ext(basename(output_path))
+  output_dir <- dirname(output_path)
+  
+  plot_paths <- list(
+    p1 = file.path(output_dir, paste0(base_name, "/avacc_centile_distribution.png")),
+    p2 = file.path(output_dir, paste0(base_name, "/ig_centile_distribution.png")),
+    p3 = file.path(output_dir, paste0(base_name, "/avacc_centile_vs_age.png")),
+    p4 = file.path(output_dir, paste0(base_name, "/ig_centile_vs_age.png"))
+  )
+  
+  # --- Save plots as individual PNGs ---
+  ggsave(plot_paths$p1, plot = p1, width = 6, height = 5, dpi = 400)
+  ggsave(plot_paths$p2, plot = p2, width = 6, height = 5, dpi = 400)
+  ggsave(plot_paths$p3, plot = p3, width = 6, height = 5, dpi = 400)
+  ggsave(plot_paths$p4, plot = p4, width = 6, height = 5, dpi = 400)
+  
+  # --- Confirmation ---
+  cat("Plots saved:\n")
+  cat(paste0(" - ", plot_paths$p1, "\n"))
+  cat(paste0(" - ", plot_paths$p2, "\n"))
+  cat(paste0(" - ", plot_paths$p3, "\n"))
+  cat(paste0(" - ", plot_paths$p4, "\n"))
   
   return(combined_data)
 }
+
+
+
+
+
+
+
 
 
 
