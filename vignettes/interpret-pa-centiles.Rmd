@@ -170,7 +170,8 @@ Depending on the selected reference set, please cite the following sources:
 
 ### Fairclough et al. reference
 
-Fairclough S.J., Stratton G., Ridgers N.D., Boddy L.M., Edwardson C.L. (2023). Age- and sex-specific physical activity centiles across childhood and adolescence: a pooled analysis of accelerometer data from 11 countries. *International Journal of Behavioral Nutrition and Physical Activity*, 20, 127. <https://doi.org/10.1186/s12966-023-01435-z>
+Fairclough S.J., Rowlands A.V., del Pozo Cruz B., Crotti M., Foweather L., Graves L.E.F., Hurter L., Jones O., MacDonald M., McCann D.A., Miller C., Noonan R.J., Owen M.B., Rudd J.R., Taylor S.L., Tyler R., Boddy L.M. (2023). Reference values for wrist-worn accelerometer physical activity metrics in English children and adolescents. *International Journal of Behavioral Nutrition and Physical Activity*, 20(1), 35.
+<https://doi.org/10.1186/s12966-023-01435-z>
 
 ### Rowlands et al. reference
 
