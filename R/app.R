@@ -7,6 +7,7 @@
 #' @examples
 #' interpret.pa()
 #' The interpret.pa() function returns a Shiny application.
+#' @export
 
 
 #==========================================================================================
