@@ -5226,11 +5226,13 @@ interpret.pa.centiles <- function(dat_path = NULL,
   
   reference_set <- tolower(reference_set)
   
+  
+  
   # --- Reference-specific citation messages ---
   if (reference_set == "fairclough") {
     message(
       "Thank you for using interpretablePA.\n\nPlease cite the following:\n\n",
-      "Fairclough S.J., Stratton G., Ridgers N.D., Boddy L.M., Edwardson C.L. (2023). ",
+      "Fairclough S.J., Rowlands A.V., Del Pozo Cruz B., Crotti M., Foweather L., Graves L.E., Hurter L., Jones O., MacDonald M., McCann D.A., Miller C., Noonan R.J., Owen M.B., Rudd J.R., Taylor S.L., Tyler R., Boddy L.M. (2023). ",
       "Age- and sex-specific physical activity centiles across childhood and adolescence: ",
       "a pooled analysis of accelerometer data from 11 countries. ",
       "International Journal of Behavioral Nutrition and Physical Activity, 20, 127. https://doi.org/10.1186/s12966-023-01435-z\n",
