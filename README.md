@@ -1,14 +1,21 @@
 Interpreting cut-point-free accelerometer data using interpretablePA
 ================
 
--   [Project description](#project-description)
-    -   [Target audience](#target-audience)
-    -   [Practical application](#practical-application)
--   [Installation](#installation)
--   [Examples](#examples)
--   [Contact](#contact)
--   [Session info](#session-info)
--   [License](#license)
+- [Project description](#project-description)
+  - [Target audience](#target-audience)
+  - [Practical application](#practical-application)
+  - [Reference populations](#reference-populations)
+- [Installation](#installation)
+- [Applications and Usage](#applications-and-usage)
+  - [1. `interpret.pa()` – Shiny app for adult
+    data](#1-interpretpa--shiny-app-for-adult-data)
+  - [Examples](#examples)
+  - [2. `interpret.pa.centiles()` – Batch centile
+    interpretation](#2-interpretpacentiles--batch-centile-interpretation)
+- [References](#references)
+- [Contact](#contact)
+- [Session info](#session-info)
+- [License](#license)
 
 <p align="right">
 
@@ -34,12 +41,15 @@ to assess physical activity. AvAcc and IG have been shown to be a viable
 alternative to traditional metrics and are strongly related to various
 health outcomes.
 
-The `interpretablePA` package contains an application that can classify
-physical activity levels based on age- and sex-specific reference values
-and translate cut-point-free accelerometer metrics into meaningful
-outcomes. Reference values are based on a population sample of 463
-healthy adults aged 20 to 89 years in Switzerland who wore the GENEActiv
-on their non-dominant wrist for up to 14 days.
+### Reference populations
+
+The package provides:
+
+- A Shiny application for interpreting adult data, based on reference
+  values from a Swiss population (ages 20–89)
+
+- A function for interpreting children’s data, using reference values
+  from an English youth cohort
 
 `interpretablePA` requires data processed using the R-package GGIR in a
 similar manner. GGIR supports the processing of multi-day raw
@@ -58,10 +68,21 @@ install.packages("remotes")
 remotes::install_github("FSchwendinger/interpretablePA")
 ```
 
-After installation, load it in R using `library(interpretablePA)` and
-start the application by running `interpret.pa()`.
+## Applications and Usage
 
-## Examples
+### 1. `interpret.pa()` – Shiny app for adult data
+
+The main entry point is the `interpret.pa()` function, which launches a
+Shiny application to interactively interpret accelerometer data in
+adults.
+
+Typical use:
+
+``` r
+interpretablePA::interpret.pa()
+```
+
+### Examples
 
 The below images will give you some insights into the package. A typical
 workflow could be:
@@ -106,6 +127,133 @@ workflow could be:
 
 ![](images/interpretablePA_3.png)
 
+### 2. `interpret.pa.centiles()` – Batch centile interpretation
+
+This function integrates subject demographic data with GGIR part 2
+summary output,  
+and predicts age- and sex-specific centiles for:
+
+- **Average acceleration (AvAcc)**  
+- **Intensity gradient (IG)**
+
+using internal reference datasets included in the package.
+
+The merged data is written to the specified output path, and four
+high-resolution PNG plots (400 DPI) are generated:
+
+1.  AvAcc centile distribution  
+2.  IG centile distribution  
+3.  AvAcc centile vs. age  
+4.  IG centile vs. age
+
+#### How it works
+
+Centiles are computed by comparing each participant’s AvAcc and IG
+values against  
+reference distributions derived from large population datasets.
+Interpolation is  
+used to estimate the centile rank for a given value at the participant’s
+age and sex.
+
+If a participant’s age is outside the valid age range for the selected
+reference set,  
+centile values are marked accordingly and set to `NA` for plotting
+purposes.
+
+#### Supported reference datasets
+
+- **Fairclough et al. (2023)** – Children / adolescents (England, ages
+  5–15)  
+- **Rowlands et al. (2025)** – Adults (UK Biobank, ages 40–80)  
+- **Schwendinger et al. (2025)** – Adults (NHANES, ages 20–90)
+
+#### Key arguments
+
+| Argument | Description |
+|----|----|
+| `dat_path` | Path to subject characteristics (CSV/Excel). If `NULL`, values are taken from `part2_path`. |
+| `part2_path` | Path to the GGIR `part2_summary.csv` file (required). |
+| `output_path` | Path to save the merged results (CSV). If `NULL`, saved next to `part2_path`. |
+| `reference_set` | Reference dataset: `"fairclough"`, `"rowlands"`, or `"nhanes"`. |
+| `col_id` | Column name for participant ID. |
+| `col_sex` | Column name for sex. |
+| `col_age` | Column name for age. |
+| `sex_code_male` | Encoding used for male participants (e.g., `"0"` or `"m"`). |
+| `sex_code_female` | Encoding used for female participants (e.g., `"1"` or `"f"`). |
+| `col_avacc` | Column name for daily average acceleration (default: `AD_mean_ENMO_mg_0.24hr`). |
+| `col_ig` | Column name for intensity gradient (default: `AD_ig_gradient_ENMO_0.24hr`). |
+
+``` r
+interpretablePA::interpret.pa.centiles(
+  part2_path = "part2_summary.csv",
+  col_id = "ID",
+  col_sex = "sex",
+  col_age = "age",
+  sex_code_male = "0",
+  sex_code_female = "1",
+  reference_set = "nhanes",
+  col_avacc = "AD_mean_ENMO_mg_0.24hr",
+  col_ig = "AD_ig_gradient_ENMO_0.24hr"
+)
+```
+
+The function produces:
+
+- a CSV file with centile estimates, and
+
+- four PNG plots (centile distributions + centile vs age plots).
+
+## References
+
+Please cite the appropriate reference depending on which part of the
+package you use:
+
+- If you use the **Shiny application** for **adult reference values**
+  (`interpret.pa()`), cite:
+
+> **Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V.,
+> Hinrichs T., & Schmidt-Trucksaess A. (2024).**  
+> *Accelerometer Metrics: Healthy Adult Reference Values, Associations
+> with Cardiorespiratory Fitness, and Clinical Implications.*  
+> Medicine and Science in Sports and Exercise, 56(2), 170–180.  
+> <https://doi.org/10.1249/MSS.0000000000003299>
+
+- If you use the **batch interpretation function**
+  (`interpret.pa.centiles()`), please cite the appropriate reference
+  depending on the selected dataset:
+
+  - **Children / Adolescents (ages 5–15, England):**
+
+    > **Fairclough S.J., Rowlands A.V., del Pozo Cruz B., Crotti M.,
+    > Foweather L., Graves L.E.F., Hurter L., Jones O., MacDonald M.,
+    > McCann D.A., Miller C., Noonan R.J., Owen M.B., Rudd J.R., Taylor
+    > S.L., Tyler R., Boddy L.M. (2023).**  
+    > *Reference values for wrist-worn accelerometer physical activity
+    > metrics in English children and adolescents.*  
+    > *International Journal of Behavioral Nutrition and Physical
+    > Activity*, 20(1), 35.  
+    > <https://doi.org/10.1186/s12966-023-01435-z>
+
+  - **Adults (ages 40–80, UK Biobank):**
+
+    > **Rowlands A.V., Kingsnorth A.P., Hansen B.H., Fairclough S.J.,
+    > Boddy L.M., Maylor B.D., Eckmann H.R., del Pozo Cruz B., Dawkins
+    > N.P., Razieh C., Khunti K., Zaccardi F., Yates T. (2025).**  
+    > *Enhancing clinical and public health interpretation of
+    > accelerometer-assessed physical activity with age-referenced
+    > values based on UK Biobank data.*  
+    > *Journal of Sport and Health Science*, 14, 100977.  
+    > <https://doi.org/10.1016/j.jshs.2024.100977>
+
+  - **Adults (ages 20–90, NHANES):**
+
+    > **Schwendinger F., Infanger D., Lichtenstein E., Hinrichs T.,
+    > Knaier R., Rowlands A.V., Schmidt-Trucksäss A. (2025).**  
+    > *Intensity or volume: the role of physical activity in
+    > longevity.*  
+    > *European Journal of Preventive Cardiology*, 32(1), 10–19.  
+    > <https://doi.org/10.1093/eurjpc/zwae295>
+
 ## Contact
 
 If you are interested in contributing or have any queries regarding this
@@ -116,27 +264,31 @@ Schwendinger](https://dsbg.unibas.ch/de/personen/fabian-schwendinger/)
 
 ## Session info
 
-    ## R version 4.1.0 (2021-05-18)
-    ## Platform: x86_64-w64-mingw32/x64 (64-bit)
-    ## Running under: Windows 10 x64 (build 19044)
+    ## R version 4.5.0 (2025-04-11 ucrt)
+    ## Platform: x86_64-w64-mingw32/x64
+    ## Running under: Windows 11 x64 (build 26100)
     ## 
     ## Matrix products: default
+    ##   LAPACK version 3.12.1
     ## 
     ## locale:
-    ## [1] LC_COLLATE=English_United Kingdom.1252 
-    ## [2] LC_CTYPE=English_United Kingdom.1252   
-    ## [3] LC_MONETARY=English_United Kingdom.1252
+    ## [1] LC_COLLATE=English_United Kingdom.utf8 
+    ## [2] LC_CTYPE=English_United Kingdom.utf8   
+    ## [3] LC_MONETARY=English_United Kingdom.utf8
     ## [4] LC_NUMERIC=C                           
-    ## [5] LC_TIME=English_United Kingdom.1252    
+    ## [5] LC_TIME=English_United Kingdom.utf8    
+    ## 
+    ## time zone: Europe/Zurich
+    ## tzcode source: internal
     ## 
     ## attached base packages:
     ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] compiler_4.1.0  fastmap_1.1.1   cli_3.6.1       tools_4.1.0    
-    ##  [5] htmltools_0.5.5 rstudioapi_0.14 yaml_2.3.7      rmarkdown_2.21 
-    ##  [9] knitr_1.42      xfun_0.38       digest_0.6.31   rlang_1.1.0    
-    ## [13] evaluate_0.20
+    ##  [1] compiler_4.5.0    fastmap_1.2.0     cli_3.6.5         tools_4.5.0      
+    ##  [5] htmltools_0.5.8.1 rstudioapi_0.17.1 yaml_2.3.10       rmarkdown_2.29   
+    ##  [9] knitr_1.50        xfun_0.52         digest_0.6.37     rlang_1.1.6      
+    ## [13] evaluate_1.0.4
 
 ## License
 
