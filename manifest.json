@@ -3,15 +3,15 @@
   "locale": "en_GB",
   "platform": "4.5.0",
   "metadata": {
-    "appmode": "rmd-static",
-    "primary_rmd": "README.Rmd",
+    "appmode": "shiny",
+    "primary_rmd": null,
     "primary_html": null,
     "content_category": null,
     "has_parameters": false
   },
   "environment": {
     "r": {
-      "requires": ">= 2.10"
+      "requires": ">= 3.5"
     }
   },
   "packages": {
@@ -3656,7 +3656,12 @@
         "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
         "Repository": "CRAN",
         "Date/Publication": "2024-03-17 13:20:02 UTC",
-        "Built": "R 4.5.0; ; 2025-06-21 00:38:27 UTC; windows"
+        "Built": "R 4.5.2; ; 2025-11-01 00:31:54 UTC; windows",
+        "RemoteType": "standard",
+        "RemotePkgRef": "remotes",
+        "RemoteRef": "remotes",
+        "RemoteRepos": "https://cran.rstudio.com",
+        "RemoteSha": "2.5.0"
       }
     },
     "reprex": {
@@ -4922,7 +4927,10 @@
   },
   "files": {
     ".Rbuildignore": {
-      "checksum": "7f3003188f3a78fd085feca239edcc60"
+      "checksum": "48302ea7b90bd8f8dcfe0b5ea9876628"
+    },
+    "app.R": {
+      "checksum": "baae75c36879382b4de92146c8c3063f"
     },
     "app_logo.png": {
       "checksum": "12396bcb0f10f7753d968b963fd71084"
@@ -4948,6 +4956,18 @@
     "data/centile_ig_m.rds": {
       "checksum": "9d1d0f3558d6bd40090611c373b73e6a"
     },
+    "data/fairclough_centile_avacc_f.rds": {
+      "checksum": "d2d8d153b380dbebd07e5890fda81a64"
+    },
+    "data/fairclough_centile_avacc_m.rds": {
+      "checksum": "23567a04bce25e1132e798ce07f917ac"
+    },
+    "data/fairclough_centile_ig_f.rds": {
+      "checksum": "941d42d8bd27947c8885b2fbd4886604"
+    },
+    "data/fairclough_centile_ig_m.rds": {
+      "checksum": "a36633944d3adcbfd2e8ed76e4c95942"
+    },
     "data/mod.rds": {
       "checksum": "84e6f8e98eeb4a966e775c87aa881d72"
     },
@@ -4963,8 +4983,50 @@
     "data/model_VO2_ig_m.rds": {
       "checksum": "c903f9d69977c8c4f715963b16816ab1"
     },
+    "data/nhanes_centile_avacc_f.rds": {
+      "checksum": "563eb18cf48de85575d0b39bc5d98d00"
+    },
+    "data/nhanes_centile_avacc_m.rds": {
+      "checksum": "563eb18cf48de85575d0b39bc5d98d00"
+    },
+    "data/nhanes_centile_ig_f.rds": {
+      "checksum": "b65ab044f803a95c9f3c5fde1fd67557"
+    },
+    "data/nhanes_centile_ig_m.rds": {
+      "checksum": "31789035d2b4d5d9ea5847b827c9e280"
+    },
+    "data/rowlands_centile_avacc_f.rds": {
+      "checksum": "60ea50d6232b382fef12262be00bf5b8"
+    },
+    "data/rowlands_centile_avacc_m.rds": {
+      "checksum": "aa25c07292043f869c050ab3f227c350"
+    },
+    "data/rowlands_centile_ig_f.rds": {
+      "checksum": "bfb3cc3f1c784e75e6c79c70b9b5ebe3"
+    },
+    "data/rowlands_centile_ig_m.rds": {
+      "checksum": "aa25c07292043f869c050ab3f227c350"
+    },
     "DESCRIPTION": {
-      "checksum": "716f686edbee1596be11efab4e3fed6b"
+      "checksum": "4e4f0334951389f3c832d5dd575416cf"
+    },
+    "doc/interpret-pa-centiles.html": {
+      "checksum": "53770a248cb210d5f713acd480bed9d5"
+    },
+    "doc/interpret-pa-centiles.R": {
+      "checksum": "026ac4efc7e224867bf95dc30e3d0e54"
+    },
+    "doc/interpret-pa-centiles.Rmd": {
+      "checksum": "1df7d6bcbea7d2622056c98be5783185"
+    },
+    "doc/Intro_interpretablePA.html": {
+      "checksum": "74d32ea9ce2a9dff1699b419e7fe13e9"
+    },
+    "doc/Intro_interpretablePA.R": {
+      "checksum": "0f729305ca50b4e1cd4105ecf223045d"
+    },
+    "doc/Intro_interpretablePA.Rmd": {
+      "checksum": "45fab29e80e647c54f8b0bfe8e3078c7"
     },
     "images/interpretablePA_1.png": {
       "checksum": "7be2be1cc31b0f8019848b9b7fd15f98"
@@ -5062,20 +5124,26 @@
     "man/find_delta_y_ig.Rd": {
       "checksum": "7277ea3d5e7a6d5890350076ad837eb7"
     },
+    "man/interpret.pa.centiles.Rd": {
+      "checksum": "99b3781a506d70abfe2897efe1524b6c"
+    },
     "man/interpret.pa.Rd": {
-      "checksum": "43b5c8596bbaecbc6752974905f410ba"
+      "checksum": "262e093a5cc42d111273d800070ae0f3"
+    },
+    "Meta/vignette.rds": {
+      "checksum": "e5e91c5d12944778417c99bad1eab53b"
     },
     "NAMESPACE": {
-      "checksum": "2657e60e2c929260283c72faf245990d"
+      "checksum": "7d9afc841cb573363dadb22d55d38887"
     },
     "R/app.R": {
-      "checksum": "ba3c0510f325cf84c44608365f716788"
+      "checksum": "8e00dd3d1a35400f0b8acd3ec6a8b388"
     },
     "R/helpers.R": {
       "checksum": "706a63ddaaa5dcaa2b08e391cce3f3dd"
     },
     "R/sysdata.rda": {
-      "checksum": "d1a330fdd5009683327d45b1fda8cdd9"
+      "checksum": "cb8a2bf2b536a53160ac7ff049e4d95e"
     },
     "R/temp.R": {
       "checksum": "dcfbc36ce52ed31cf26dffa24f24f08e"
@@ -5084,10 +5152,10 @@
       "checksum": "585f0ac0f18da778ee80f0c8295b5059"
     },
     "README.md": {
-      "checksum": "fb39dfef8a0f804091e7f0ce852b1ff7"
+      "checksum": "997258191b86b39d03eb02c14d66c3d1"
     },
     "README.Rmd": {
-      "checksum": "5378d12c63dc906d19bc97f7a88e89c4"
+      "checksum": "69fd8d67268944f3702f83305aef9c31"
     },
     "Thumbs.db": {
       "checksum": "a3d32260a66d7dd0db19419ead4eff39"
@@ -5101,8 +5169,11 @@
     "vignettes/images/Thumbs.db": {
       "checksum": "1664a448b6813647ef1bf32dca940639"
     },
+    "vignettes/interpret-pa-centiles.Rmd": {
+      "checksum": "1df7d6bcbea7d2622056c98be5783185"
+    },
     "vignettes/Intro_interpretablePA.Rmd": {
-      "checksum": "b8d6eac85526c0a9aeeadef8536c4551"
+      "checksum": "45fab29e80e647c54f8b0bfe8e3078c7"
     },
     "vignettes/references.bib": {
       "checksum": "845fedb62e53bc3ec2519636257e5e33"
