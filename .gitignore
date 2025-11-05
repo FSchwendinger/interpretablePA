@@ -6,3 +6,5 @@ inst/doc
 Thumbs.db
 .gitignore
 *.Rproj
+/doc/
+/Meta/
