@@ -59,8 +59,56 @@ interpret.pa <- function() {
 
   # Load model files (gamlss), store them in a list and name them accordingly
   # mod <- lapply(Sys.glob(path = paste0(dat_path, "/centile_avacc_f.rds")), readRDS)
-  # model_list <- lapply(Sys.glob(path = paste0("./data", "/*.rds")), readRDS)
-  # names(model_list) <- gsub(".rds", "", grep("/*.rds", list.files(paste0("./data")), value = TRUE))
+
+  # Load and name all .rds models from ./data in case further models are added to the package
+  # load_models <- function(data_dir = "./data") {
+  #   stopifnot(dir.exists(data_dir))
+  # 
+  #   files <- list.files(data_dir, pattern = "\\.rds$", full.names = TRUE)
+  #   if (length(files) == 0L) stop("No .rds files found in ", data_dir, call. = FALSE)
+  # 
+  #   models <- lapply(files, readRDS)
+  # 
+  #   # Names = filename stems (no path, no extension)
+  #   nm <- tools::file_path_sans_ext(basename(files))
+  # 
+  #   # In case of duplicate stems, make them unique (adds .1, .2, …)
+  #   if (any(duplicated(nm))) {
+  #     warning("Duplicate model names detected: ",
+  #             paste(unique(nm[duplicated(nm)]), collapse = ", "),
+  #             ". Making names unique.")
+  #     nm <- make.unique(nm)
+  #   }
+  # 
+  #   names(models) <- nm
+  #   models
+  # }
+  # 
+  # # Optional: quick summary
+  # summarise_models <- function(models) {
+  #   data.frame(
+  #     name  = names(models),
+  #     class = vapply(models, function(m) paste(class(m), collapse = "/"), character(1)),
+  #     stringsAsFactors = FALSE
+  #   )
+  # }
+  # 
+  # # ---- Usage ---------------------------------------------------------------
+  # 
+  # model_list <- load_models("./data")
+  # 
+  # # Keep base centile models (avacc/ig, m/f) AND everything starting with 'model_'
+  # keep_idx <- grepl("^centile_(avacc|ig)_[mf]$", names(model_list)) |
+  #   grepl("^mod", names(model_list))
+  # 
+  # model_list <- model_list[keep_idx]
+  # 
+  # if (!length(model_list)) {
+  #   warning("After filtering, no models remain. Check file names and patterns.")
+  # }
+  # 
+  # print(summarise_models(model_list))
+  
 
   ui <-
     shiny::fluidPage(
@@ -1502,6 +1550,7 @@ output$download_template <- downloadHandler(
 
     param_list <- c("avacc", "ig")
 
+    
     res_frame <- data.frame(
       parameter = param_list
       , age = rep(age_i(), times = length(param_list))
@@ -1528,8 +1577,10 @@ output$download_template <- downloadHandler(
     # print(res_frame)
 
     for (i in seq_len(nrow(res_frame))) {
-
+      
+      
       current_model <- model_list[[res_frame$model_name[i]]]
+      
 
       # Which centiles to plot
       # centiles_pred <- c(3, 15, 50, 85, 97)
@@ -3125,8 +3176,20 @@ output$download_template <- downloadHandler(
 
     for (i in seq_len(nrow(res_frame))) {
 
+      # checks
+      key <- res_frame$model_name[i]
+      if (!key %in% names(model_list)) {
+        stop("Missing model in model_list: ", key)
+      }
+      # check end
       current_model <- model_list[[res_frame$model_name[i]]]
 
+      #checks
+      # minimal class check
+      if (!gamlss::is.gamlss(current_model)) {
+        stop("Not a gamlss model: ", key, " (class: ", paste(class(current_model), collapse="/"), ")")
+      }
+      #check end
       # Predict centiles and save them in a data frame
       z_score <- centiles.pred(
         obj = current_model
