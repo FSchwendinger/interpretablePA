@@ -1,0 +1,18 @@
+Package: interpretablePA-app
+Type: Application
+Title: interpretablePA Shiny app
+Version: 0.0.1
+Imports:
+    shiny,
+    shinythemes,
+    shinyjs,
+    shinyBS,
+    shinybusy,
+    DT,
+    ggplot2,
+    dplyr,
+    readxl,
+    viridis,
+    interpretablePA
+Remotes:
+    github::FSchwendinger/interpretablePA
