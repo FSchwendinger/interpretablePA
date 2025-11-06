@@ -4,7 +4,7 @@
 \alias{interpret.pa}
 \title{Function Name: interpret.pa()}
 \usage{
-interpret.pa()
+interpret.pa(...)
 }
 \arguments{
 \item{None}{Not necessary}

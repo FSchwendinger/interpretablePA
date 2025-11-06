@@ -8,3 +8,57 @@ Thumbs.db
 *.Rproj
 /doc/
 /Meta/
+
+
+# -----------------------
+# Core R package ignores
+# -----------------------
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+.DS_Store
+
+# -----------------------
+# Build artifacts
+# -----------------------
+/doc/
+/Meta/
+.Rbuildignore
+*.tar.gz
+*.Rout
+*.o
+*.so
+*.dll
+.Rcheck/
+
+# -----------------------
+# renv and rsconnect
+# -----------------------
+renv/library/
+renv/staging/
+renv/python/
+renv.lock
+rsconnect/
+
+# -----------------------
+# Shiny app (inst/app)
+# -----------------------
+inst/app/rsconnect/
+inst/app/renv/
+inst/app/renv.lock
+inst/app/.Rhistory
+inst/app/.RData
+inst/app/.Rproj
+inst/app/.Rprofile
+
+# -----------------------
+# Test and cache data
+# -----------------------
+.vscode/
+.idea/
+.Rcache/
+.Renv
+.Renviron
+.Renviron.local
+.RDataTmp
