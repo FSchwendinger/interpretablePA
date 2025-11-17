@@ -3,7 +3,6 @@
 export(.onUnload)
 export(interpret.pa)
 export(interpret.pa.centiles)
-export(shiny_app)
 import(dplyr)
 import(ggplot2)
 import(readxl)
