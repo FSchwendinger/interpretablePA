@@ -1,61 +1,112 @@
-# internal factory that builds and RETURNS the app
-# (move your current ui/server construction here; do NOT call runApp() here)
-.interpret_pa_app <- function() {
-  # source("R/helpers.R")
-  
-  # Load model files (gamlss), store them in a list and name them accordingly
-  # mod <- lapply(Sys.glob(path = paste0(dat_path, "/centile_avacc_f.rds")), readRDS)
-  
-  # Load and name all .rds models from ./data in case further models are added to the package
-  # load_models <- function(data_dir = "./data") {
-  #   stopifnot(dir.exists(data_dir))
-  # 
-  #   files <- list.files(data_dir, pattern = "\\.rds$", full.names = TRUE)
-  #   if (length(files) == 0L) stop("No .rds files found in ", data_dir, call. = FALSE)
-  # 
-  #   models <- lapply(files, readRDS)
-  # 
-  #   # Names = filename stems (no path, no extension)
-  #   nm <- tools::file_path_sans_ext(basename(files))
-  # 
-  #   # In case of duplicate stems, make them unique (adds .1, .2, …)
-  #   if (any(duplicated(nm))) {
-  #     warning("Duplicate model names detected: ",
-  #             paste(unique(nm[duplicated(nm)]), collapse = ", "),
-  #             ". Making names unique.")
-  #     nm <- make.unique(nm)
-  #   }
-  # 
-  #   names(models) <- nm
-  #   models
-  # }
-  # 
-  # # Optional: quick summary
-  # summarise_models <- function(models) {
-  #   data.frame(
-  #     name  = names(models),
-  #     class = vapply(models, function(m) paste(class(m), collapse = "/"), character(1)),
-  #     stringsAsFactors = FALSE
-  #   )
-  # }
-  # 
-  # # ---- Usage ---------------------------------------------------------------
-  # 
-  # model_list <- load_models("./data")
-  # 
-  # # Keep base centile models (avacc/ig, m/f) AND everything starting with 'model_'
-  # keep_idx <- grepl("^centile_(avacc|ig)_[mf]$", names(model_list)) |
-  #   grepl("^mod", names(model_list))
-  # 
-  # model_list <- model_list[keep_idx]
-  # 
-  # if (!length(model_list)) {
-  #   warning("After filtering, no models remain. Check file names and patterns.")
-  # }
-  # 
-  # print(summarise_models(model_list))
-  
-  
+#' Function Name: interpret.pa()
+#'
+#' The interpret.pa() function is a part of an R application that supports the use of cut-point-free metrics, namely Average Acceleration (AvAcc) and Intensity Gradient (IG), assessed by wrist-worn triaxial accelerometers and calculated over the 24-hour day. This function turns abstract accelerometer data into understandable information by classifying the levels of physical activity based on age- and sex-specific reference values and translating the cut-point-free accelerometer metrics into meaningful outcomes.
+#' @param None Not necessary
+#' @seealso \link[vignette:Intro_interpretablePA]{Intro to interpretablePA}
+#' @keywords accelerometer human_movement physical_activity
+#' @examples
+#' interpret.pa()
+#' The interpret.pa() function returns a Shiny application.
+#' @export
+
+# source("R/helpers.R")
+
+# Load model files (gamlss), store them in a list and name them accordingly
+# mod <- lapply(Sys.glob(path = paste0(dat_path, "/centile_avacc_f.rds")), readRDS)
+
+# Load and name all .rds models from ./data in case further models are added to the package
+# load_models <- function(data_dir = "./data") {
+#   stopifnot(dir.exists(data_dir))
+# 
+#   files <- list.files(data_dir, pattern = "\\.rds$", full.names = TRUE)
+#   if (length(files) == 0L) stop("No .rds files found in ", data_dir, call. = FALSE)
+# 
+#   models <- lapply(files, readRDS)
+# 
+#   # Names = filename stems (no path, no extension)
+#   nm <- tools::file_path_sans_ext(basename(files))
+# 
+#   # In case of duplicate stems, make them unique (adds .1, .2, …)
+#   if (any(duplicated(nm))) {
+#     warning("Duplicate model names detected: ",
+#             paste(unique(nm[duplicated(nm)]), collapse = ", "),
+#             ". Making names unique.")
+#     nm <- make.unique(nm)
+#   }
+# 
+#   names(models) <- nm
+#   models
+# }
+# 
+# # Optional: quick summary
+# summarise_models <- function(models) {
+#   data.frame(
+#     name  = names(models),
+#     class = vapply(models, function(m) paste(class(m), collapse = "/"), character(1)),
+#     stringsAsFactors = FALSE
+#   )
+# }
+# 
+# # ---- Usage ---------------------------------------------------------------
+# 
+# model_list <- load_models("./data")
+# 
+# # Keep base centile models (avacc/ig, m/f) AND everything starting with 'model_'
+# keep_idx <- grepl("^centile_(avacc|ig)_[mf]$", names(model_list)) |
+#   grepl("^mod", names(model_list))
+# 
+# model_list <- model_list[keep_idx]
+# 
+# if (!length(model_list)) {
+#   warning("After filtering, no models remain. Check file names and patterns.")
+# }
+# 
+# print(summarise_models(model_list))
+
+#==========================================================================================
+# Paths
+#==========================================================================================
+
+#dat_path <- "./data"
+
+#==========================================================================================
+# Helper functions
+#==========================================================================================
+
+#source("helpers.R")
+
+#==========================================================================================
+# Load packages
+#==========================================================================================
+
+# library(tidyverse)
+# library(shiny)
+# library(palmerpenguins)
+# library(shinythemes)
+# library(shinyalert)
+# library(gamlss)
+# library(rms)
+# # library(ggplot2)
+# library(scales)
+# library(directlabels)
+# library(ggpubr)
+# library(fontawesome)
+# library(shinybusy)
+# library(shinyjs)
+# library(shinyBS)
+# library(DT)
+
+
+#==========================================================================================
+# UI
+#==========================================================================================
+
+interpret.pa <- function(...) {
+  message(
+    "Thank you for using interpretablePA. Please refer to the original study when using this application in publications etc.: \n\n",
+    "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V., Hinrichs T., & Schmidt-Trucksaess A. (2024). Accelerometer Metrics: Healthy Adult Reference Values, Associations with Cardiorespiratory Fitness, and Clinical Implications. Medicine and Science in Sports and Exercise,56(2):170-180.  doi: 10.1249/MSS.0000000000003299\n"
+  )
+
   ui <-
     shiny::fluidPage(
       titlePanel(title = div(
@@ -5154,71 +5205,6 @@
   #------------------------------------------------------------------------------------------
   
   shiny::shinyApp(ui = ui, server = server)
-}
-
-#' Return the interpretablePA Shiny app
-#' @export
-shiny_app <- function() {
-  .interpret_pa_app()
-}
-
-#' Function Name: interpret.pa()
-#'
-#' The interpret.pa() function is a part of an R application that supports the use of cut-point-free metrics, namely Average Acceleration (AvAcc) and Intensity Gradient (IG), assessed by wrist-worn triaxial accelerometers and calculated over the 24-hour day. This function turns abstract accelerometer data into understandable information by classifying the levels of physical activity based on age- and sex-specific reference values and translating the cut-point-free accelerometer metrics into meaningful outcomes.
-#' @param None Not necessary
-#' @seealso \link[vignette:Intro_interpretablePA]{Intro to interpretablePA}
-#' @keywords accelerometer human_movement physical_activity
-#' @examples
-#' interpret.pa()
-#' The interpret.pa() function returns a Shiny application.
-#' @export
-
-
-#==========================================================================================
-# Paths
-#==========================================================================================
-
-#dat_path <- "./data"
-
-#==========================================================================================
-# Helper functions
-#==========================================================================================
-
-#source("helpers.R")
-
-#==========================================================================================
-# Load packages
-#==========================================================================================
-
-# library(tidyverse)
-# library(shiny)
-# library(palmerpenguins)
-# library(shinythemes)
-# library(shinyalert)
-# library(gamlss)
-# library(rms)
-# # library(ggplot2)
-# library(scales)
-# library(directlabels)
-# library(ggpubr)
-# library(fontawesome)
-# library(shinybusy)
-# library(shinyjs)
-# library(shinyBS)
-# library(DT)
-
-
-#==========================================================================================
-# UI
-#==========================================================================================
-
-interpret.pa <- function(...) {
-  message(
-    "Thank you for using interpretablePA. Please refer to the original study when using this application in publications etc.: \n\n",
-    "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V., Hinrichs T., & Schmidt-Trucksaess A. (2024). Accelerometer Metrics: Healthy Adult Reference Values, Associations with Cardiorespiratory Fitness, and Clinical Implications. Medicine and Science in Sports and Exercise,56(2):170-180.  doi: 10.1249/MSS.0000000000003299\n"
-  )
-
-  shiny::runApp(.interpret_pa_app(), ...)
 
 }
 
