@@ -1333,6 +1333,25 @@ interpret.pa <- function(...) {
       
       df <- read_userdata()
       
+      df <- df %>%
+        mutate(
+          sex = tolower(sex),
+          sex = case_when(
+            sex %in% c("m", "male", "man")   ~ "m",
+            sex %in% c("f", "female", "woman") ~ "f",
+            sex %in% c("b", "both") ~ "b",
+            TRUE ~ NA_character_
+          )
+        )
+      
+      if (any(is.na(df$sex))) {
+        shiny::showNotification(
+          "Sex column must be coded as m/f (or male/female). Some values could not be mapped.",
+          type     = "warning",
+          duration = 8
+        )
+      }
+      
       # Make sure that ages are between 20 and 89, inclusive.
       shiny::validate(
         need(all(na.omit(df$age) >= 20) && all(na.omit(df$age) <= 89), "Please enter ages between 20 and 89 (inclusive).")
@@ -1356,8 +1375,18 @@ interpret.pa <- function(...) {
       
       for (i in seq_len(nrow(df))) {
         
-        mod_avacc <- model_list[[grep(paste0("centile_", "avacc", "_", df[i, "sex"]), names(model_list))]]
-        mod_ig <- model_list[[grep(paste0("centile_", "ig", "_", df[i, "sex"]), names(model_list))]]
+        key_avacc <- paste0("centile_", "avacc", "_", df[i, "sex"])
+        key_ig    <- paste0("centile_", "ig",    "_", df[i, "sex"])
+        
+        if (!key_avacc %in% names(model_list)) {
+          stop("Model not found for ", key_avacc, " (row ", i, ")")
+        }
+        if (!key_ig %in% names(model_list)) {
+          stop("Model not found for ", key_ig, " (row ", i, ")")
+        }
+        
+        mod_avacc <- model_list[[key_avacc]]
+        mod_ig    <- model_list[[key_ig]]
         
         # Which centiles to plot
         # centiles_pred <- c(3, 15, 50, 85, 97)
@@ -1416,35 +1445,53 @@ interpret.pa <- function(...) {
     #==========================================================================================
     
     create_result_frame_r <- eventReactive(input$Calculate_r, {
-      
       req(input$upload)
       
       df <- read_userdata()
       
-      # Make sure that ages are between 20 and 89, inclusive.
+      # normalise sex exactly as in calc_50_perc_uploaded
+      df <- df %>%
+        mutate(
+          sex = tolower(sex),
+          sex = case_when(
+            sex %in% c("m", "male", "man")     ~ "m",
+            sex %in% c("f", "female", "woman") ~ "f",
+            sex %in% c("b", "both")            ~ "b",
+            TRUE                               ~ NA_character_
+          )
+        )
+      
       shiny::validate(
-        need(all(na.omit(df$age) >= 20) && all(na.omit(df$age) <= 89), "Please enter ages between 20 and 89 (inclusive).")
+        shiny::need(
+          !any(is.na(df$sex)),
+          "Sex column must be coded as m/f (or male/female), and could not be mapped for some rows."
+        )
       )
       
-      # print(df)
-      
-      # Reshape from wide to long, sort according name
+      # age check
+      shiny::validate(
+        shiny::need(
+          all(na.omit(df$age) >= 20) && all(na.omit(df$age) <= 89),
+          "Please enter ages between 20 and 89 (inclusive)."
+        )
+      )
       
       res_frame <- df %>%
         pivot_longer(cols = c("avacc", "ig"), values_to = "values") %>%
         dplyr::arrange(name) %>%
         dplyr::rename(
-          gender = sex
-          , parameter = name
+          gender    = sex,
+          parameter = name
         ) %>%
         mutate(
-          model_name = NA
-          , percentile = NA
+          model_name = paste0("centile", "_", parameter, "_", gender),
+          percentile = NA_real_
         )
       
-      # print(res_frame)
-      
-      res_frame$model_name <- rep(paste0("centile", "_", res_frame$parameter, "_", res_frame$gender))
+      missing <- setdiff(unique(res_frame$model_name), names(model_list))
+      if (length(missing)) {
+        stop("No models found in model_list for: ", paste(missing, collapse=", "))
+      }
       
       res_frame
       
@@ -1455,37 +1502,39 @@ interpret.pa <- function(...) {
     #------------------------------------------------------------------------------------------
     
     percentile_results_r <- eventReactive(input$Calculate_r, {
-      
       req(input$upload)
-      
       res_frame <- create_result_frame_r()
       
+      missing <- setdiff(unique(res_frame$model_name), names(model_list))
+      if (length(missing)) {
+        stop("No models found in model_list for: ", paste(missing, collapse = ", "))
+      }
+      
       for (i in seq_len(nrow(res_frame))) {
+        key <- res_frame$model_name[i]
+        current_model <- model_list[[key]]
         
-        current_model <- model_list[[res_frame$model_name[i]]]
+        if (!gamlss::is.gamlss(current_model)) {
+          stop("Not a gamlss model: ", key,
+               " (class: ", paste(class(current_model), collapse = "/"), ")")
+        }
         
-        # Which centiles to plot
-        # centiles_pred <- c(3, 15, 50, 85, 97)
-        
-        # Predict centiles and save them in a data frame
         z_score <- centiles.pred(
-          obj = current_model
-          , type = "z-scores"
-          , xname = "Age"
-          , xvalues = res_frame$age[i] # For which x-values (age)
-          , yval = res_frame$values[i]
-          , cent = c(3, 15, 50, 85, 97)
-          , calibration = FALSE
+          obj        = current_model,
+          type       = "z-scores",
+          xname      = "Age",
+          xvalues    = res_frame$age[i],
+          yval       = res_frame$values[i],
+          cent       = c(3, 15, 50, 85, 97),
+          calibration = FALSE
         )
         
-        res_frame$percentile[i] <- round(pnorm(z_score), 3)*100
-        
+        res_frame$percentile[i] <- round(pnorm(z_score), 3) * 100
       }
       
       as.data.frame(res_frame)
-      
-      
     })
+    
     
     #------------------------------------------------------------------------------------------
     # Create the plots based on the users' input
