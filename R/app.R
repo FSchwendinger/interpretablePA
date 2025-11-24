@@ -5315,6 +5315,43 @@ interpret.pa <- function(...) {
 #' @import dplyr readxl ggplot2 viridis
 #' @export
 
+# Commented-out code is in case further models are added to the package
+# Create a second model list from .rds files, but only for valid reference sets
+# model_list2 <- local({
+#   data_dir <- "./data"   # adjust if needed
+#   
+#   valid_refs <- c("fairclough", "rowlands", "nhanes")
+#   
+#   files <- list.files(data_dir, pattern = "\\.rds$", full.names = TRUE)
+#   
+#   if (length(files) == 0L)
+#     stop("No .rds files found in ", data_dir, call. = FALSE)
+#   
+#   # read models
+#   models <- lapply(files, readRDS)
+#   
+#   # derive names from filenames
+#   nm <- tools::file_path_sans_ext(basename(files))
+#   
+#   # keep only models that start with a valid reference set
+#   keep <- grepl(paste0("^(", paste(valid_refs, collapse = "|"), ")_"), nm)
+#   
+#   models <- models[keep]
+#   nm     <- nm[keep]
+#   
+#   names(models) <- nm
+#   
+#   models
+# })
+# 
+# # Load existing sysdata.rda
+# load("R/sysdata.rda")   # This loads one or more objects into your environment
+# 
+# save(
+#   model_list,
+#   model_list2,
+#   file = "R/sysdata.rda"
+# )
 
 interpret.pa.centiles <- function(dat_path = NULL,
                                   part2_path,
@@ -5420,7 +5457,7 @@ interpret.pa.centiles <- function(dat_path = NULL,
   }
   
   # --- Load models ---
-  model_list_filtered <- model_list[grepl(paste0("^", reference_set, "_centile_"), names(model_list))]
+  model_list_filtered <- model_list2[grepl(paste0("^", reference_set, "_centile_"), names(model_list2))]
   
   get_model <- function(metric, sex) {
     name <- paste0(reference_set, "_centile_", metric, "_", as.character(sex))
@@ -5433,7 +5470,7 @@ interpret.pa.centiles <- function(dat_path = NULL,
   }
   
   # --- Load GGIR part 2 summary (with optional subject data) ---
-  part_2 <- read.csv(part2_path, colClasses = c(ID = "character"), stringsAsFactors = FALSE)
+  part_2 <- read.csv(part2_path, stringsAsFactors = FALSE)
   part_2 <- within(part_2, {
     ID <- trimws(ID)
     avacc <- as.numeric(get(col_avacc))
@@ -5457,7 +5494,7 @@ interpret.pa.centiles <- function(dat_path = NULL,
     ext <- tolower(tools::file_ext(dat_path))
     subject_data <- switch(
       ext,
-      csv = read.csv(dat_path, colClasses = c(ID = "character"), stringsAsFactors = FALSE),
+      csv = read.csv(dat_path, stringsAsFactors = FALSE),
       xls = readxl::read_excel(dat_path),
       xlsx = readxl::read_excel(dat_path),
       stop("Unsupported file type.")
@@ -5508,10 +5545,11 @@ interpret.pa.centiles <- function(dat_path = NULL,
   
   
   # Extract directory from output_path
+  base_name <- tools::file_path_sans_ext(basename(output_path))
   output_dir <- dirname(output_path)
   
   # Define fixed file name
-  csv_fixed_path <- file.path(output_dir, "centile_results.csv")
+  csv_fixed_path <- file.path(output_dir, paste0(base_name, "/centile_results.csv"))
   
   # Write the CSV
   write.csv(combined_data, csv_fixed_path, row.names = FALSE)  
