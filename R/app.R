@@ -1339,18 +1339,13 @@ interpret.pa <- function(...) {
           sex = case_when(
             sex %in% c("m", "male", "man")   ~ "m",
             sex %in% c("f", "female", "woman") ~ "f",
-            sex %in% c("b", "both") ~ "b",
             TRUE ~ NA_character_
           )
         )
-      
-      if (any(is.na(df$sex))) {
-        shiny::showNotification(
-          "Sex column must be coded as m/f (or male/female). Some values could not be mapped.",
-          type     = "warning",
-          duration = 8
-        )
-      }
+
+      shiny::validate(
+        need(!any(is.na(df$sex)), "Sex column must be coded as m/f (or male/female), and could not be mapped for some rows.")
+      )
       
       # Make sure that ages are between 20 and 89, inclusive.
       shiny::validate(
@@ -1372,7 +1367,10 @@ interpret.pa <- function(...) {
       
       df <- df %>%
         mutate(cent50_avacc = NA, cent50_ig = NA)
-      
+
+      # z-scores are filled per row so that each person is scored with their own sex-specific model
+      z_avacc <- z_ig <- rep(NA_real_, nrow(df))
+
       for (i in seq_len(nrow(df))) {
         
         key_avacc <- paste0("centile_", "avacc", "_", df[i, "sex"])
@@ -1412,22 +1410,25 @@ interpret.pa <- function(...) {
         
         df$cent50_avacc[i] <- round(cent50_avacc$`50`[1],2)
         df$cent50_ig[i] <- round(cent50_ig$`50`[1],3)
-        
+
+        z_avacc[i] <- z.scores(mod_avacc, x = df[i, "age"], y = df[i, "avacc"])
+        z_ig[i]    <- z.scores(mod_ig,    x = df[i, "age"], y = df[i, "ig"])
+
       }
-      
+
       final_df <- df %>%
-        
-        # Calculate avacc and ig as percentage of predicted
-        mutate(avacc_perc_pred = round(avacc/cent50_avacc[i]*100, 2)) %>%
+
+        # Calculate avacc and ig as percentage of predicted (row-wise, each row's own median)
+        mutate(avacc_perc_pred = round(avacc/cent50_avacc*100, 2)) %>%
         mutate(
           ig_perc_pred = ifelse(
-            ig != cent50_ig[i],
-            100 + round((cent50_ig[i] - ig) / cent50_ig[i] * 100, 2),
+            ig != cent50_ig,
+            100 + round((cent50_ig - ig) / cent50_ig * 100, 2),
             100
           )
-        ) %>% 
-        mutate(avacc_z = round(z.scores(mod_avacc, x= age, y= avacc),2)) %>%
-        mutate(ig_z = round(z.scores(mod_ig, x = age, y= ig),2))
+        ) %>%
+        mutate(avacc_z = round(z_avacc, 2)) %>%
+        mutate(ig_z = round(z_ig, 2))
       
       #head(final_df[0:4,])
       
@@ -1456,7 +1457,6 @@ interpret.pa <- function(...) {
           sex = case_when(
             sex %in% c("m", "male", "man")     ~ "m",
             sex %in% c("f", "female", "woman") ~ "f",
-            sex %in% c("b", "both")            ~ "b",
             TRUE                               ~ NA_character_
           )
         )
@@ -2132,7 +2132,7 @@ interpret.pa <- function(...) {
       prediction_frame <- data.frame(
         Age = age_i()
         , Sex = ifelse(sex_i() %in% "f", 1, 0)
-        , BMI = weight_i()/(height_i()*100)^2
+        , BMI = weight_i()/(height_i()/100)^2
         , ig_gradient_pla = ig_i()
         , ACC_day_mg_pla = avacc_i()
         , stringsAsFactors = FALSE
@@ -3141,9 +3141,23 @@ interpret.pa <- function(...) {
         , delta_y_abs = 3.5
       )
       # }
-      
-      
-      paste0("Males: Average acceleration: ", round(inc_acc_abs - avacc_m(), digits = 1), ", Intensity gradient: ", round(inc_ig_abs - ig_m(), digits = 2), " Females: Average acceleration: ", round(inc_acc_abs - avacc_f(), digits = 1), ", Intensity gradient: ", round(inc_ig_abs - ig_f(), digits = 2))
+
+      # Same for females (row 2)
+      inc_acc_abs_f <- find_delta_cvd(
+        mod = model_list$mod
+        , myvals = prediction_frame[2, ]
+        , fix = c("Age", "Sex", "BMI", "ig_gradient_pla")
+        , delta_y_abs = 3.5
+      )
+
+      inc_ig_abs_f <- find_delta_cvd(
+        mod = model_list$mod
+        , myvals = prediction_frame[2, ]
+        , fix = c("Age", "Sex", "BMI", "ACC_day_mg_pla")
+        , delta_y_abs = 3.5
+      )
+
+      paste0("Males: Average acceleration: ", round(inc_acc_abs - avacc_m(), digits = 1), ", Intensity gradient: ", round(inc_ig_abs - ig_m(), digits = 2), " Females: Average acceleration: ", round(inc_acc_abs_f - avacc_f(), digits = 1), ", Intensity gradient: ", round(inc_ig_abs_f - ig_f(), digits = 2))
       
       
     })
