@@ -5278,13 +5278,16 @@ interpret.pa <- function(...) {
 #' This function integrates subject demographic data with GGIR part 2 summary output,
 #' and predicts age- and sex-specific centiles for average acceleration (AvAcc) and
 #' intensity gradient (IG) using internal reference datasets included in the package.
-#' The merged data is written to the specified output path.
-#' 
+#' The results are written to a new folder inside `output_path`.
+#'
 #' Centiles are computed by comparing each participant's AvAcc and IG values against
-#' reference distributions derived from large population datasets. Interpolation is
-#' used to estimate the centile rank for a given value at the participant's age and sex.
-#' If a participant’s age is outside the valid age range for the selected reference set,
-#' centile values are marked accordingly and set to `NA` for plotting purposes.
+#' reference distributions derived from large population datasets. The reference centile
+#' curves are interpolated linearly at the participant's exact age, and the participant's
+#' value is then interpolated between the centiles. Values outside the reference range are
+#' reported as e.g. "below 3rd percentile" / "above 97th percentile". If a participant’s
+#' age is outside the valid age range for the selected reference set, the centile is
+#' reported as "age out of range". Such participants are not plotted; the plot subtitles
+#' state how many were left out.
 #'
 #' Supported reference datasets:
 #' - Fairclough et al. (2023) [Children]
@@ -5304,29 +5307,35 @@ interpret.pa <- function(...) {
 #' @param dat_path Character or NULL. Path to the file containing subject characteristics
 #'        (CSV or Excel). If NULL, subject data will be extracted from `part2_path`.
 #' @param part2_path Character. Path to the GGIR `part2_summary.csv` file.
-#' @param output_path Character or NULL. Full path where the output CSV should be saved. If NULL, CSV will be saved to part2_path. 
-#'                    Default is NULL.
+#' @param output_path Character or NULL. Folder in which the results are saved; it is created
+#'        if it does not exist. Each run writes into a new subfolder
+#'        `interpretablePA_centiles_<reference_set>_<date>_<time>`. If NULL (default), you are
+#'        asked to choose a folder (in RStudio or on Windows); otherwise the Downloads folder is used.
 #' @param reference_set Character. One of "fairclough", "rowlands", or "nhanes".
-#' @param col_id Character. Column name for participant ID in subject data and/or part 2 file. If both files are specified, IDs need to match between files.
+#' @param col_id Character. Column name for participant ID in subject data and/or part 2 file.
+#'        If the part 2 file has no such column, its GGIR column `ID` is used. If both files are
+#'        specified, IDs need to match between files; participants without GGIR data are kept
+#'        with `NA` values.
 #' @param col_sex Character. Column name for sex in subject data and/or part 2 file.
 #' @param col_age Character. Column name for age in subject data and/or part 2 file.
 #' @param sex_code_male Character. Encoding for male sex in the dataset (e.g., "0" or "m").
+#'        Matching ignores case and surrounding spaces; other values are set to `NA` with a warning.
 #' @param sex_code_female Character. Encoding for female sex in the dataset (e.g., "1" or "f").
 #' @param col_avacc Character. Column name for average acceleration in GGIR output.
-#'        Default is "AD_mean_ENMO_mg_0.24hr".
+#'        Default is "AD_mean_ENMO_mg_0.24hr" (GGIR's "...0-24hr" header is also accepted).
 #' @param col_ig Character. Column name for intensity gradient in GGIR output.
-#'        Default is "AD_ig_gradient_ENMO_0.24hr".
+#'        Default is "AD_ig_gradient_ENMO_0.24hr" (GGIR's "...0-24hr" header is also accepted).
 #'
 #' @return A data frame with subject ID, sex, age, AvAcc and IG values, and their predicted centiles.
 #'         Also writes the resulting data to a CSV file.
 #'
 #' In addition:
-#' - Saves the resulting data to a CSV file.
-#' - Saves four PNG plots (400 DPI) in the same directory as `output_path` or `part2_path`.
+#' - Saves the resulting data to `centile_results.csv`.
+#' - Saves four PNG plots (400 DPI) next to it (a plot is skipped if there is nothing to plot).
 #'
 #' @seealso \link[vignette:interpret-pa-centiles]{Vignette: interpret-pa-centiles}
 #'
-#' @import dplyr readxl ggplot2 viridis
+#' @import dplyr readxl ggplot2
 #' @export
 
 # Commented-out code is in case further models are added to the package
@@ -5369,7 +5378,7 @@ interpret.pa <- function(...) {
 
 interpret.pa.centiles <- function(dat_path = NULL,
                                   part2_path,
-                                  output_path = part2_path,
+                                  output_path = NULL,
                                   col_id = "ID",
                                   col_sex = "sex",
                                   col_age = "age",
@@ -5388,9 +5397,8 @@ interpret.pa.centiles <- function(dat_path = NULL,
     message(
       "Thank you for using interpretablePA.\n\nPlease cite the following:\n\n",
       "Fairclough S.J., Rowlands A.V., Del Pozo Cruz B., Crotti M., Foweather L., Graves L.E., Hurter L., Jones O., MacDonald M., McCann D.A., Miller C., Noonan R.J., Owen M.B., Rudd J.R., Taylor S.L., Tyler R., Boddy L.M. (2023). ",
-      "Age- and sex-specific physical activity centiles across childhood and adolescence: ",
-      "a pooled analysis of accelerometer data from 11 countries. ",
-      "International Journal of Behavioral Nutrition and Physical Activity, 20, 127. https://doi.org/10.1186/s12966-023-01435-z\n",
+      "Reference values for wrist-worn accelerometer physical activity metrics in England children and adolescents. ",
+      "International Journal of Behavioral Nutrition and Physical Activity, 20, 35. https://doi.org/10.1186/s12966-023-01435-z\n\n",
       
       "General package reference:\n",
       "Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V., Hinrichs T., & Schmidt-Trucksäss A. (2024). ",
@@ -5440,39 +5448,34 @@ interpret.pa.centiles <- function(dat_path = NULL,
                       stop("Unsupported reference set.")
   )
   
+  # Ordinal label for the centile bounds: 3rd, 5th, 95th, 97th
+  ordinal <- function(n) paste0(n, if (n %% 10 == 3 && n %% 100 != 13) "rd" else "th")
+
   # --- Helper function for percentile prediction ---
-  predict_percentile <- function(age, x_value, model, lower_bound, upper_bound, age_range) {
-    if (!is.numeric(age) || !is.numeric(x_value))
-      return(NA)
-    
+  predict_percentile <- function(age, x_value, model) {
     if (age < age_range[1] || age > age_range[2]) {
       return("age out of range")
     }
-    
-    ages <- model$ages
-    centiles <- model$centiles
-    values <- model$values
-    
-    idx <- which.min(abs(ages - age))
-    centile_values <- as.numeric(values[idx, ])
-    
+
+    # Reference centile curves at the participant's exact age (linear interpolation between table ages)
+    centile_values <- sapply(model$values, function(v) approx(x = model$ages, y = v, xout = age, rule = 2)$y)
+
     ord <- order(centile_values)
     x_sorted <- centile_values[ord]
-    y_sorted <- centiles[ord]
-    
-    if (x_value < min(x_sorted, na.rm = TRUE)) {
-      return(paste0("below ", lower_bound, "th percentile"))
-    } else if (x_value > max(x_sorted, na.rm = TRUE)) {
-      return(paste0("above ", upper_bound, "th percentile"))
+    y_sorted <- model$centiles[ord]
+
+    if (x_value < min(x_sorted)) {
+      return(paste0("below ", ordinal(centile_bounds[1]), " percentile"))
+    } else if (x_value > max(x_sorted)) {
+      return(paste0("above ", ordinal(centile_bounds[2]), " percentile"))
     } else {
-      result <- approx(x = x_sorted, y = y_sorted, xout = x_value, rule = 2)$y
-      return(round(result, 1))
+      return(round(approx(x = x_sorted, y = y_sorted, xout = x_value)$y, 1))
     }
   }
-  
+
   # --- Load models ---
   model_list_filtered <- model_list2[grepl(paste0("^", reference_set, "_centile_"), names(model_list2))]
-  
+
   get_model <- function(metric, sex) {
     name <- paste0(reference_set, "_centile_", metric, "_", as.character(sex))
     model <- model_list_filtered[[name]]
@@ -5482,168 +5485,209 @@ interpret.pa.centiles <- function(dat_path = NULL,
       stop("Model structure invalid: ", name)
     return(model)
   }
-  
-  # --- Load GGIR part 2 summary (with optional subject data) ---
-  part_2 <- read.csv(part2_path, stringsAsFactors = FALSE)
-  part_2 <- within(part_2, {
-    ID <- trimws(ID)
-    avacc <- as.numeric(get(col_avacc))
-    ig <- as.numeric(get(col_ig))
-  })
-  
-  if (is.null(dat_path)) {
-    # Extract subject data from part2 if no dat_path provided
-    if (!all(c(col_id, col_sex, col_age) %in% names(part_2))) {
-      stop("Subject columns not found in part2 file: ", paste(c(col_id, col_sex, col_age), collapse = ", "))
+
+  # --- Helpers for reading the input files ---
+  # Column name as R reads it (read.csv turns e.g. "..._0-24hr" into "..._0.24hr")
+  find_col <- function(df, col, file) {
+    hit <- intersect(c(col, make.names(col)), names(df))
+    if (length(hit) == 0) {
+      stop("Column '", col, "' not found in ", file, call. = FALSE)
     }
-    part_2 <- within(part_2, {
-      ID <- as.character(get(col_id))
-      sex <- factor(get(col_sex), levels = c(sex_code_male, sex_code_female), labels = c("m", "f"))
-      age <- as.numeric(get(col_age))
-    })
-    subject_data <- dplyr::select(part_2, ID, sex, age, avacc, ig)
-    
+    hit[1]
+  }
+
+  show_ids <- function(ids) {
+    paste0(paste(utils::head(ids, 10), collapse = ", "), if (length(ids) > 10) ", ...")
+  }
+
+  # --- Load GGIR part 2 summary ---
+  part_2 <- read.csv(part2_path, stringsAsFactors = FALSE)
+
+  # Use col_id in the part 2 file if it exists there, otherwise GGIR's own "ID" column
+  p2_id <- if (any(c(col_id, make.names(col_id)) %in% names(part_2))) col_id else "ID"
+
+  ggir <- data.frame(
+    ID = trimws(as.character(part_2[[find_col(part_2, p2_id, part2_path)]])),
+    avacc = as.numeric(part_2[[find_col(part_2, col_avacc, part2_path)]]),
+    ig = as.numeric(part_2[[find_col(part_2, col_ig, part2_path)]]),
+    stringsAsFactors = FALSE
+  )
+
+  # --- Load subject data (from a separate file or from the part 2 file) ---
+  if (is.null(dat_path)) {
+    subj <- part_2
+    subj_file <- part2_path
+    col_id <- p2_id
   } else {
-    # Load subject data from separate file
     ext <- tolower(tools::file_ext(dat_path))
-    subject_data <- switch(
+    subj <- switch(
       ext,
       csv = read.csv(dat_path, stringsAsFactors = FALSE),
-      xls = readxl::read_excel(dat_path),
-      xlsx = readxl::read_excel(dat_path),
+      xls = as.data.frame(readxl::read_excel(dat_path)),
+      xlsx = as.data.frame(readxl::read_excel(dat_path)),
       stop("Unsupported file type.")
     )
-    subject_data <- within(subject_data, {
-      ID <- as.character(get(col_id))
-      sex <- factor(get(col_sex), levels = c(sex_code_male, sex_code_female), labels = c("m", "f"))
-      age <- as.numeric(get(col_age))
-    })
-    subject_data <- dplyr::select(subject_data, ID, sex, age)
-    
-    part_2 <- dplyr::select(part_2, ID, avacc, ig)
-    subject_data <- merge(subject_data, part_2, by = "ID")
+    subj_file <- dat_path
   }
-  
-  # --- Merge and predict ---
-  combined_data <- subject_data
-  
-  combined_data <- combined_data %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      # Check for missing input values
-      has_all_data = all(!is.na(sex), !is.na(age), !is.na(avacc), !is.na(ig)),
-      
-      # Only compute if data is present, else NA
-      avacc_centile = if (has_all_data) {
-        as.character(predict_percentile(age, avacc, get_model("avacc", sex), centile_bounds[1], centile_bounds[2], age_range))
-      } else { NA_character_ },
-      
-      ig_centile = if (has_all_data) {
-        as.character(predict_percentile(age, ig, get_model("ig", sex), centile_bounds[1], centile_bounds[2], age_range))
-      } else { NA_character_ },
-      
-      age_warning = if (!is.na(age) && (age < age_range[1] || age > age_range[2])) {
-        paste0("age out of range for ", reference_set, " (", age_range[1], "-", age_range[2], ")")
-      } else {
-        ""
-      }
-    ) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(ID, sex, age, avacc, ig, avacc_centile, ig_centile, age_warning)
-  
-  combined_data <- combined_data %>%
-    mutate(
-      avacc_centile_num = suppressWarnings(as.numeric(avacc_centile)),
-      ig_centile_num = suppressWarnings(as.numeric(ig_centile))
-    )
-  
-  
-  # Extract directory from output_path
-  base_name <- tools::file_path_sans_ext(basename(output_path))
-  output_dir <- dirname(output_path)
-  
-  # Define fixed file name
-  csv_fixed_path <- file.path(output_dir, paste0(base_name, "/centile_results.csv"))
-  
+
+  # Sex: match the user's codes ignoring case and surrounding spaces
+  sex_raw <- trimws(as.character(subj[[find_col(subj, col_sex, subj_file)]]))
+  sex <- ifelse(tolower(sex_raw) == tolower(sex_code_male), "m",
+                ifelse(tolower(sex_raw) == tolower(sex_code_female), "f", NA))
+  unmatched_sex <- unique(sex_raw[is.na(sex) & !is.na(sex_raw) & sex_raw != ""])
+  if (length(unmatched_sex) > 0) {
+    warning("Sex values that match neither sex_code_male (\"", sex_code_male, "\") nor sex_code_female (\"",
+            sex_code_female, "\") were set to NA: ", show_ids(unmatched_sex), call. = FALSE)
+  }
+
+  subject_data <- data.frame(
+    ID = trimws(as.character(subj[[find_col(subj, col_id, subj_file)]])),
+    sex = factor(sex, levels = c("m", "f")),
+    age = as.numeric(subj[[find_col(subj, col_age, subj_file)]]),
+    stringsAsFactors = FALSE
+  )
+
+  # --- Combine subject data and GGIR values ---
+  if (is.null(dat_path)) {
+    combined_data <- cbind(subject_data, ggir[c("avacc", "ig")])
+  } else {
+    no_ggir <- setdiff(subject_data$ID, ggir$ID)
+    no_subject <- setdiff(ggir$ID, subject_data$ID)
+    duplicated_ids <- unique(c(subject_data$ID[duplicated(subject_data$ID)], ggir$ID[duplicated(ggir$ID)]))
+    if (length(no_ggir) > 0) {
+      warning(length(no_ggir), " participant(s) in the subject file have no GGIR data and are kept with NA: ",
+              show_ids(no_ggir), call. = FALSE)
+    }
+    if (length(no_subject) > 0) {
+      warning(length(no_subject), " participant(s) in the part 2 file have no subject data and are not included: ",
+              show_ids(no_subject), call. = FALSE)
+    }
+    if (length(duplicated_ids) > 0) {
+      warning("Duplicate IDs (their rows are repeated in the results): ", show_ids(duplicated_ids), call. = FALSE)
+    }
+    combined_data <- merge(subject_data, ggir, by = "ID", all.x = TRUE)
+  }
+
+  # --- Predict centiles (each metric only needs its own value) ---
+  centile_for <- function(metric, value, sex, age) {
+    if (is.na(sex) || is.na(age) || is.na(value)) {
+      return(NA_character_)
+    }
+    as.character(predict_percentile(age, value, get_model(metric, sex)))
+  }
+
+  sex_chr <- as.character(combined_data$sex)
+  combined_data$avacc_centile <- unname(mapply(centile_for, "avacc", combined_data$avacc, sex_chr, combined_data$age))
+  combined_data$ig_centile <- unname(mapply(centile_for, "ig", combined_data$ig, sex_chr, combined_data$age))
+  combined_data$age_warning <- ifelse(
+    !is.na(combined_data$age) & (combined_data$age < age_range[1] | combined_data$age > age_range[2]),
+    paste0("age out of range for ", reference_set, " (", age_range[1], "-", age_range[2], ")"),
+    ""
+  )
+  combined_data$avacc_centile_num <- suppressWarnings(as.numeric(combined_data$avacc_centile))
+  combined_data$ig_centile_num <- suppressWarnings(as.numeric(combined_data$ig_centile))
+  combined_data <- dplyr::as_tibble(combined_data)
+
+  # --- Output folder ---
+  if (is.null(output_path)) {
+    if (interactive()) {
+      caption <- "Choose a folder for the centile results"
+      output_path <- tryCatch(
+        if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+          rstudioapi::selectDirectory(caption = caption)
+        } else if (.Platform$OS.type == "windows") {
+          get("choose.dir", envir = asNamespace("utils"))(caption = caption) # utils::choose.dir only exists on Windows
+        },
+        error = function(e) NULL
+      )
+    }
+    if (length(output_path) != 1 || is.na(output_path) || !nzchar(output_path)) {
+      home <- if (.Platform$OS.type == "windows") Sys.getenv("USERPROFILE") else path.expand("~")
+      output_path <- file.path(home, "Downloads")
+      message("No folder selected; saving the results to ", output_path)
+    }
+  }
+
+  output_dir <- file.path(output_path, paste0("interpretablePA_centiles_", reference_set, "_",
+                                              format(Sys.time(), "%Y-%m-%d_%H%M%S")))
+  dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
   # Write the CSV
-  write.csv(combined_data, csv_fixed_path, row.names = FALSE)  
-  
-  # Correct confirmation message
-  cat("CSV file created:", csv_fixed_path, "\n")
-  
-  
+  csv_path <- file.path(output_dir, "centile_results.csv")
+  write.csv(combined_data, csv_path, row.names = FALSE)
+
+  cat("CSV file created:", csv_path, "\n")
+
+
   # --- Generate plots ---
-  # --- Plotting functions ---
-  plot_centile_distribution <- function(data, centile_col, metric_label = "Centile") {
-    plot_data <- data %>%
-      dplyr::filter(!is.na({{ centile_col }}), is.finite({{ centile_col }}), !is.na(sex))
-    
-    n <- nrow(plot_data)
-    
-    ggplot(plot_data, aes(x = {{ centile_col }}, fill = sex)) +
+  # Subtitle: how many participants are plotted and why the others are not
+  plot_note <- function(data, metric) {
+    centile <- data[[paste0(metric, "_centile")]]
+    counts <- c(sum(grepl("^below", centile)), sum(grepl("^above", centile)),
+                sum(centile %in% "age out of range"), sum(is.na(centile)))
+    reasons <- c(paste("below", ordinal(centile_bounds[1])), paste("above", ordinal(centile_bounds[2])),
+                 "age out of range", "missing data")
+    note <- paste("n =", sum(is.finite(data[[paste0(metric, "_centile_num")]])), "participants plotted")
+    if (any(counts > 0)) {
+      not_plotted <- paste0("not plotted: ", paste(counts[counts > 0], reasons[counts > 0], collapse = ", "))
+      note <- paste(c(note, strwrap(not_plotted, width = 55)), collapse = "\n")
+    }
+    note
+  }
+
+  # --- Plotting functions (return NULL if there is nothing to plot) ---
+  plot_centile_distribution <- function(data, metric, metric_label) {
+    centile_col <- paste0(metric, "_centile_num")
+    plot_data <- data[is.finite(data[[centile_col]]) & !is.na(data$sex), ]
+    if (nrow(plot_data) == 0) return(NULL)
+
+    ggplot(plot_data, aes(x = .data[[centile_col]], fill = sex)) +
       geom_histogram(binwidth = 5, position = "identity", color = "black", alpha = 0.6) +
-      geom_density(aes(y = after_stat(count)), alpha = 0.3, position = "identity") +
+      geom_density(aes(y = after_stat(count * 5)), alpha = 0.3, position = "identity") + # count * binwidth, to match the histogram
       scale_fill_viridis_d(option = "D", begin = 0.2, end = 0.8, name = "Sex") +
       labs(x = metric_label, y = "Count",
            title = paste("Distribution of", metric_label),
-           subtitle = paste("n =", n, "participants")) +
+           subtitle = plot_note(data, metric)) +
       facet_wrap(~sex) +
-      theme_minimal(base_size = 14)
+      theme_minimal(base_size = 14) +
+      theme(panel.spacing = unit(1.5, "lines")) # keeps the "100" and "0" axis labels of the two panels apart
   }
-  
-  
-  
-  
-  plot_centile_vs_age <- function(data, centile_col, metric_label = "Centile") {
-    plot_data <- data %>%
-      dplyr::filter(!is.na(age), is.finite(age),
-                    !is.na({{ centile_col }}), is.finite({{ centile_col }}),
-                    !is.na(sex))
-    
-    n <- nrow(plot_data)
-    
-    ggplot(plot_data, aes(x = age, y = {{ centile_col }}, color = sex)) +
+
+  plot_centile_vs_age <- function(data, metric, metric_label) {
+    centile_col <- paste0(metric, "_centile_num")
+    plot_data <- data[is.finite(data[[centile_col]]) & is.finite(data$age) & !is.na(data$sex), ]
+    if (nrow(plot_data) == 0) return(NULL)
+
+    ggplot(plot_data, aes(x = age, y = .data[[centile_col]], color = sex)) +
       geom_point(alpha = 0.6, size = 2) +
       geom_smooth(method = "loess", se = TRUE, linewidth = 1) +
       scale_color_viridis_d(option = "D", begin = 0.2, end = 0.8, name = "Sex") +
       labs(x = "Age (years)", y = metric_label,
            title = paste(metric_label, "vs Age"),
-           subtitle = paste("n =", n, "participants")) +
+           subtitle = plot_note(data, metric)) +
       facet_wrap(~sex) +
       theme_minimal(base_size = 14)
   }
-  
-  
-  
-  p1 <- plot_centile_distribution(combined_data, avacc_centile_num, "AvAcc centile")
-  p2 <- plot_centile_distribution(combined_data, ig_centile_num, "IG centile")
-  p3 <- plot_centile_vs_age(combined_data, avacc_centile_num, "AvAcc centile")
-  p4 <- plot_centile_vs_age(combined_data, ig_centile_num, "IG centile")
-  
-  # --- Create output filenames based on output_path ---
-  base_name <- tools::file_path_sans_ext(basename(output_path))
-  output_dir <- dirname(output_path)
-  
-  plot_paths <- list(
-    p1 = file.path(output_dir, paste0(base_name, "/avacc_centile_distribution.png")),
-    p2 = file.path(output_dir, paste0(base_name, "/ig_centile_distribution.png")),
-    p3 = file.path(output_dir, paste0(base_name, "/avacc_centile_vs_age.png")),
-    p4 = file.path(output_dir, paste0(base_name, "/ig_centile_vs_age.png"))
+
+  plots <- list(
+    avacc_centile_distribution = plot_centile_distribution(combined_data, "avacc", "AvAcc centile"),
+    ig_centile_distribution = plot_centile_distribution(combined_data, "ig", "IG centile"),
+    avacc_centile_vs_age = plot_centile_vs_age(combined_data, "avacc", "AvAcc centile"),
+    ig_centile_vs_age = plot_centile_vs_age(combined_data, "ig", "IG centile")
   )
-  
+
   # --- Save plots as individual PNGs ---
-  ggsave(plot_paths$p1, plot = p1, width = 6, height = 5, dpi = 400)
-  ggsave(plot_paths$p2, plot = p2, width = 6, height = 5, dpi = 400)
-  ggsave(plot_paths$p3, plot = p3, width = 6, height = 5, dpi = 400)
-  ggsave(plot_paths$p4, plot = p4, width = 6, height = 5, dpi = 400)
-  
-  # --- Confirmation ---
   cat("Plots saved:\n")
-  cat(paste0(" - ", plot_paths$p1, "\n"))
-  cat(paste0(" - ", plot_paths$p2, "\n"))
-  cat(paste0(" - ", plot_paths$p3, "\n"))
-  cat(paste0(" - ", plot_paths$p4, "\n"))
-  
+  for (name in names(plots)) {
+    if (is.null(plots[[name]])) {
+      cat(" - ", name, ": skipped (no numeric centiles to plot)\n", sep = "")
+    } else {
+      plot_path <- file.path(output_dir, paste0(name, ".png"))
+      ggsave(plot_path, plot = plots[[name]], width = 6, height = 5, dpi = 400)
+      cat(" - ", plot_path, "\n", sep = "")
+    }
+  }
+
   return(combined_data)
 }
 
