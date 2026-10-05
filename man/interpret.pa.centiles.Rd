@@ -26,13 +26,14 @@ interpret.pa.centiles(
 
 \item{output_path}{Character or NULL. Folder in which the results are saved; it is created
 if it does not exist. Each run writes into a new subfolder
-\verb{interpretablePA_centiles_<reference_set>_<date>_<time>}. If NULL (default), you are
+\verb{interpretablePA_centiles_<reference_set>_<date>_<time>} (with \verb{_2}, \verb{_3}, ... added if that
+folder already exists). If NULL (default), you are
 asked to choose a folder (in RStudio or on Windows); otherwise the Downloads folder is used.}
 
 \item{col_id}{Character. Column name for participant ID in subject data and/or part 2 file.
 If the part 2 file has no such column, its GGIR column \code{ID} is used. If both files are
 specified, IDs need to match between files; participants without GGIR data are kept
-with \code{NA} values.}
+with \code{NA} values, and rows without an ID are left out (with a warning).}
 
 \item{col_sex}{Character. Column name for sex in subject data and/or part 2 file.}
 

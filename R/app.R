@@ -5429,13 +5429,14 @@ interpret.pa <- function(...) {
 #' @param part2_path Character. Path to the GGIR `part2_summary.csv` file.
 #' @param output_path Character or NULL. Folder in which the results are saved; it is created
 #'        if it does not exist. Each run writes into a new subfolder
-#'        `interpretablePA_centiles_<reference_set>_<date>_<time>`. If NULL (default), you are
+#'        `interpretablePA_centiles_<reference_set>_<date>_<time>` (with `_2`, `_3`, ... added if that
+#'        folder already exists). If NULL (default), you are
 #'        asked to choose a folder (in RStudio or on Windows); otherwise the Downloads folder is used.
 #' @param reference_set Character. One of "fairclough", "rowlands", or "nhanes".
 #' @param col_id Character. Column name for participant ID in subject data and/or part 2 file.
 #'        If the part 2 file has no such column, its GGIR column `ID` is used. If both files are
 #'        specified, IDs need to match between files; participants without GGIR data are kept
-#'        with `NA` values.
+#'        with `NA` values, and rows without an ID are left out (with a warning).
 #' @param col_sex Character. Column name for sex in subject data and/or part 2 file.
 #' @param col_age Character. Column name for age in subject data and/or part 2 file.
 #' @param sex_code_male Character. Encoding for male sex in the dataset (e.g., "0" or "m").
@@ -5671,6 +5672,16 @@ interpret.pa.centiles <- function(dat_path = NULL,
   if (is.null(dat_path)) {
     combined_data <- cbind(subject_data, ggir[c("avacc", "ig")])
   } else {
+    # Rows without an ID cannot be matched (merge() would pair NA with NA and "" with ""), so leave them out
+    no_id_subject <- is.na(subject_data$ID) | subject_data$ID == ""
+    no_id_ggir <- is.na(ggir$ID) | ggir$ID == ""
+    if (any(no_id_subject) || any(no_id_ggir)) {
+      warning("Rows without an ID cannot be matched and are not included: ", sum(no_id_subject), " in the subject file, ",
+              sum(no_id_ggir), " in the part 2 file.", call. = FALSE)
+    }
+    subject_data <- subject_data[!no_id_subject, , drop = FALSE]
+    ggir <- ggir[!no_id_ggir, , drop = FALSE]
+
     no_ggir <- setdiff(subject_data$ID, ggir$ID)
     no_subject <- setdiff(ggir$ID, subject_data$ID)
     duplicated_ids <- unique(c(subject_data$ID[duplicated(subject_data$ID)], ggir$ID[duplicated(ggir$ID)]))
@@ -5728,9 +5739,18 @@ interpret.pa.centiles <- function(dat_path = NULL,
     }
   }
 
-  output_dir <- file.path(output_path, paste0("interpretablePA_centiles_", reference_set, "_",
-                                              format(Sys.time(), "%Y-%m-%d_%H%M%S")))
-  dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+  # New run folder; dir.create() fails if the folder already exists (e.g. two runs in the
+  # same second), so add _2, _3, ... until a new folder could be created
+  dir.create(output_path, recursive = TRUE, showWarnings = FALSE)
+  run_name <- file.path(output_path, paste0("interpretablePA_centiles_", reference_set, "_",
+                                            format(Sys.time(), "%Y-%m-%d_%H%M%S")))
+  output_dir <- run_name
+  run <- 1
+  while (!dir.create(output_dir, showWarnings = FALSE)) {
+    if (!dir.exists(output_dir)) stop("Could not create the output folder ", output_dir, call. = FALSE)
+    run <- run + 1
+    output_dir <- paste0(run_name, "_", run)
+  }
 
   # Write the CSV
   csv_path <- file.path(output_dir, "centile_results.csv")

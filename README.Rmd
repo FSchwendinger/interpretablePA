@@ -108,12 +108,17 @@ The merged data is written to the specified output path, and four high-resolutio
 
 #### How it works
 
-Centiles are computed by comparing each participant’s AvAcc and IG values against  
-reference distributions derived from large population datasets. Interpolation is  
-used to estimate the centile rank for a given value at the participant’s age and sex.  
+Centiles are computed by comparing each participant’s AvAcc and IG values against
+reference distributions derived from large population datasets. The reference centile
+curves are interpolated at the participant’s exact age, and the participant’s value is
+then interpolated between the centiles.
 
-If a participant’s age is outside the valid age range for the selected reference set,  
-centile values are marked accordingly and set to `NA` for plotting purposes.
+Values outside the reference range are reported as e.g. "below 3rd percentile", and
+participants outside the valid age range of the selected reference set as "age out of range".
+Such participants are not plotted; the plot subtitles state how many were left out.
+
+Results (`centile_results.csv` and four PNG plots) are saved in a new folder
+`interpretablePA_centiles_<reference_set>_<date>_<time>` inside `output_path`.
 
 #### Supported reference datasets
 
@@ -127,7 +132,7 @@ centile values are marked accordingly and set to `NA` for plotting purposes.
 |-----------------|-------------------------------------------------------|
 | `dat_path` | Path to subject characteristics (CSV/Excel). If `NULL`, values are taken from `part2_path`. |
 | `part2_path` | Path to the GGIR `part2_summary.csv` file (required). |
-| `output_path` | Path to save the merged results (CSV). If `NULL`, saved next to `part2_path`. |
+| `output_path` | Folder for the results (created if needed); each run creates its own subfolder. If `NULL` (default), you are asked to choose a folder (RStudio/Windows), otherwise the Downloads folder is used. |
 | `reference_set` | Reference dataset: `"fairclough"`, `"rowlands"`, or `"nhanes"`. |
 | `col_id` | Column name for participant ID. |
 | `col_sex` | Column name for sex. |

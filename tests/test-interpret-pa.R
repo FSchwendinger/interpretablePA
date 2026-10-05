@@ -85,8 +85,11 @@ cvd_g <- run_server(quote({
   datasetIncrease_0_g_cvd()
 }))
 pf <- data.frame(Age = 50, Sex = 1, BMI = 60 / 1.65^2, ig_gradient_pla = -2.6, ACC_day_mg_pla = 25)
-inc_f <- interpretablePA:::find_delta_cvd(ml$mod, pf, fix = c("Age", "Sex", "BMI", "ig_gradient_pla"), delta_y_abs = 3.5)
-stopifnot(grepl(paste0("Females: Average acceleration: ", round(inc_f - 25, 1), ","), cvd_g, fixed = TRUE))
+inc_acc_f <- interpretablePA:::find_delta_cvd(ml$mod, pf, fix = c("Age", "Sex", "BMI", "ig_gradient_pla"), delta_y_abs = 3.5)
+inc_ig_f  <- interpretablePA:::find_delta_cvd(ml$mod, pf, fix = c("Age", "Sex", "BMI", "ACC_day_mg_pla"), delta_y_abs = 3.5)
+# Complete female part, AvAcc and IG (men's IG -2.4 differs from women's -2.6, so the male row would give another IG delta)
+stopifnot(endsWith(cvd_g, paste0(" Females: Average acceleration: ", round(inc_acc_f - 25, 1),
+                                 ", Intensity gradient: ", round(inc_ig_f - (-2.6), 2))))
 
 #------------------------------------------------------------------------------------------
 # 4. Individual-level data: BMI uses height in cm; percentiles unchanged

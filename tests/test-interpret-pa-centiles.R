@@ -88,4 +88,43 @@ write.csv(nh, nh_path, row.names = FALSE)
 r4 <- run(part2_path = nh_path, reference_set = "nhanes")$res
 stopifnot(centile(r4, "M", "avacc") != centile(r4, "W", "avacc"))
 
+#------------------------------------------------------------------------------------------
+# 5. Rows without an ID are left out instead of being matched to each other
+#------------------------------------------------------------------------------------------
+
+p2_noid <- data.frame(ID = c("A", "", NA), sex = c(0, 1, 1), age = c(40, 40, 40),
+                      AD_mean_ENMO_mg_0.24hr = c(31.35, 50, 60), AD_ig_gradient_ENMO_0.24hr = c(-2.393, -2.2, -2.1))
+subj_noid <- data.frame(ID = c("A", "", NA), sex = c(0, 1, 1), age = c(40, 41, 42))
+p2_noid_path <- file.path(out_dir, "part2_noid.csv")
+subj_noid_path <- file.path(out_dir, "subjects_noid.csv")
+write.csv(p2_noid, p2_noid_path, row.names = FALSE)
+write.csv(subj_noid, subj_noid_path, row.names = FALSE)
+
+out5 <- run(dat_path = subj_noid_path, part2_path = p2_noid_path, reference_set = "rowlands")
+stopifnot(
+  identical(out5$res$ID, "A"), out5$res$avacc == 31.35,
+  any(grepl("without an ID .*2 in the subject file, 2 in the part 2 file", out5$warnings))
+)
+
+#------------------------------------------------------------------------------------------
+# 6. A run never reuses an existing run folder (e.g. two runs in the same second)
+#------------------------------------------------------------------------------------------
+
+coll_dir <- tempfile("ipa_collision_")
+dir.create(coll_dir)
+# Occupy the folder names of the next seconds, so the run below must avoid an existing name
+existing <- paste0("interpretablePA_centiles_rowlands_", format(Sys.time() + 0:10, "%Y-%m-%d_%H%M%S"))
+for (d in existing) {
+  dir.create(file.path(coll_dir, d))
+  writeLines("previous run", file.path(coll_dir, d, "centile_results.csv"))
+}
+invisible(capture.output(suppressWarnings(suppressMessages(
+  interpret.pa.centiles(part2_path = part2_path, output_path = coll_dir, reference_set = "rowlands")))))
+new_dir <- setdiff(list.files(coll_dir), existing)
+stopifnot(
+  length(new_dir) == 1, grepl("_2$", new_dir),
+  file.exists(file.path(coll_dir, new_dir, "centile_results.csv")),
+  all(sapply(existing, function(d) identical(readLines(file.path(coll_dir, d, "centile_results.csv")), "previous run")))
+)
+
 cat("All interpret.pa.centiles() checks passed.\n")
