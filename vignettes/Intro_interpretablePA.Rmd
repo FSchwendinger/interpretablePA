@@ -177,7 +177,7 @@ We plan on implementing several features in the future.
 
 -   Customisable activity goals: We aim to include a field where the user can enter the desired activity level (i.e. an improvement of x%, an absolute improvement of x units, or a clinically relevant improvement in average acceleration or intensity gradient).
 
--   Downloadable .pdf reports of your analyses: We are currently working on this.
+Downloadable reports of your analyses are now available in tab "4) Download report". The report is an HTML file (entered data, percentile curves, exact percentiles and, for individual and summarised cohort data, the translation of results) that can be saved as PDF from the browser.
 
 # **5 Methodological considerations**
 

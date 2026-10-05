@@ -1,0 +1,124 @@
+---
+title: "`r if (nzchar(params$data$title)) htmltools::htmlEscape(params$data$title) else 'interpretablePA report'`"
+subtitle: "`r if (nzchar(params$data$title)) 'interpretablePA report' else ''`"
+date: "Created on `r params$data$date`"
+output:
+  html_document:
+    self_contained: true
+    theme: flatly
+params:
+  data: NA
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+d <- params$data
+
+tab <- function(x) knitr::kable(x, format = "html", row.names = FALSE, table.attr = 'class="table table-condensed"')
+asis_text <- function(x) gsub("\n", "<br>", htmltools::htmlEscape(x))
+
+mode_label <- c(
+  individual = "Individual-level data",
+  stratified = "Cohort-level data (summarised, stratified by sex)",
+  `non-stratified` = "Cohort-level data (summarised, both sexes)",
+  raw = "Cohort-level data (raw, uploaded file)"
+)[[d$mode]]
+
+wide_plot <- d$mode %in% c("stratified", "raw") # 2 x 2 panels instead of 2 x 1
+logo <- system.file("www", "app_logo.png", package = "interpretablePA")
+```
+
+<style>
+  .main-container { position: relative; }
+  #header { padding-right: 130px; }           /* keep the title clear of the logo */
+  .app-logo { position: absolute; top: 15px; right: 15px; height: 115px; }
+  .table { width: auto; }
+  .table-wide { overflow-x: auto; }
+  h2 { margin-top: 1.6em; }
+  .refs { font-size: 0.9em; color: #555; }
+</style>
+
+```{r logo, results = "asis", eval = nzchar(logo)}
+cat('<img src="', logo, '" class="app-logo" alt="interpretablePA logo">\n', sep = "")
+```
+
+**Type of data:** `r mode_label`
+
+```{r notes, results = "asis", eval = nzchar(d$notes)}
+cat("**Notes:**<br>", asis_text(d$notes), "\n")
+```
+
+## Entered data
+
+```{r entered, results = "asis"}
+tab(d$entered)
+```
+
+## Percentile curves
+
+The curves show the 3rd, 15th, 50th, 85th and 97th percentiles of healthy adults of the same age. The dots show where the `r if (d$mode == "individual") "individual" else "cohort"` is located.
+
+```{r plot, fig.width = if (wide_plot) 12 else 8, fig.height = if (wide_plot) 10 else 9, out.width = "100%"}
+if (!is.null(d$plot)) print(d$plot)
+```
+
+```{r percentiles-title, results = "asis", eval = d$mode != "raw"}
+cat("## Exact percentiles\n\n")
+cat("The percentile at which the", if (d$mode == "individual") "individual" else "cohort",
+    "is located compared to healthy age-matched counterparts.\n\n")
+cat(tab(d$percentiles))
+```
+
+```{r raw-results, results = "asis", eval = d$mode == "raw"}
+cols <- c(ID = "ID", sex = "Sex", age = "Age (years)", avacc = "Average acceleration (mg)", ig = "Intensity gradient",
+          avacc_percentile = "AvAcc percentile", ig_percentile = "IG percentile",
+          cent50_avacc = "AvAcc 50th percentile (mg)", cent50_ig = "IG 50th percentile",
+          avacc_perc_pred = "AvAcc % predicted", ig_perc_pred = "IG % predicted",
+          avacc_z = "AvAcc z-score", ig_z = "IG z-score")
+res <- d$results[, intersect(names(cols), names(d$results)), drop = FALSE]
+names(res) <- cols[names(res)]
+cat("## Results per participant\n\n")
+cat("Percentiles, values as percentage of the age- and sex-specific 50th percentile (% predicted) and z-scores.\n\n")
+cat('<div class="table-wide">', tab(res), "</div>\n")
+```
+
+```{r translation, results = "asis", eval = d$mode != "raw"}
+cat("## Translation of results\n\n")
+
+cat("### Goal 1: Reaching the 50th percentile\n\n")
+cat("Minutes per day of each activity needed ", d$target, ". The calculations are based on average acceleration. ",
+    "Any one of the activities is sufficient. Based on the strong and independent predictive value of intensity gradient for ",
+    "VO<sub>2max</sub>, activities demanding higher intensities are to be preferred.\n\n", sep = "")
+cat(tab(d$goal1))
+
+if (!is.null(d$combined)) {
+  cat("\n\n**Combined recommendation:** the two selected activities each cover half of the required increase (minutes per day).\n\n")
+  cat(tab(d$combined))
+}
+
+cat("\n\n### Goal 2: Clinically relevant improvement in cardiorespiratory fitness\n\n")
+cat("Necessary absolute change in average acceleration or intensity gradient that corresponds to a clinically relevant ",
+    "improvement in cardiorespiratory fitness measured as VO<sub>2max</sub> (1 mL/kg/min):\n\n", sep = "")
+cat("> ", asis_text(d$goal2), "\n\n", sep = "")
+cat("Increasing physical activity by this quantity will unlikely lead to direct improvements in VO<sub>2max</sub>; ",
+    "for this, prolonged behavioural change is required. The calculations are based on the models presented in Figure 3 in ",
+    "Schwendinger et al. (2023).\n\n", sep = "")
+cat('<p class="refs">Ekblom-Bak E, Ekblom B, S&ouml;derling J, et al. Sex- and age-specific associations between cardiorespiratory fitness, ',
+    "CVD morbidity and all-cause mortality in 266.109 adults. Prev Med 2019;127:105799.</p>\n\n", sep = "")
+
+cat("### Goal 3: Reduce risk of death and disease\n\n")
+cat("Any of the activities below, undertaken daily for the given number of minutes, may correspond to a 5.2% lower all-cause mortality. ",
+    "These calculations are based on the association of average acceleration with all-cause mortality in inactive adults.\n\n", sep = "")
+cat(tab(d$goal3))
+cat('\n\n<p class="refs">Rowlands A, Davies M, Dempsey P, et al. Wrist-worn accelerometers: recommending ~1.0 m<i>g</i> as the minimum ',
+    "clinically important difference (MCID) in daily average acceleration for inactive adults. BJSM 2021;55:814-815.</p>\n", sep = "")
+```
+
+## Reference values
+
+<p class="refs">Schwendinger F., Wagner J., Knaier R., Infanger D., Rowlands A.V., Hinrichs T., & Schmidt-Trucksäss A. (2024). Accelerometer Metrics: Healthy Adult Reference Values, Associations with Cardiorespiratory Fitness, and Clinical Implications. Medicine and Science in Sports and Exercise, 56(2), 170–180. https://doi.org/10.1249/MSS.0000000000003299</p>
+
+---
+
+<p class="refs">Created with interpretablePA `r d$version` on `r d$date`.</p>
