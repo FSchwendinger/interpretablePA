@@ -51,7 +51,8 @@ Three internal reference datasets are supported:
 ```{r example code, eval=FALSE}
 library(interpretablePA)
 
-# Run with only part2 file (subject data in part2)
+# Run with only part2 file (subject data in part2).
+# Without output_path you are asked to choose a folder (otherwise Downloads is used).
 interpretablePA::interpret.pa.centiles(
   part2_path = "data/part2_summary.csv",
   reference_set = "nhanes"
@@ -105,12 +106,10 @@ sim_data <- data.frame(
 # Save simulated data
 write.csv(sim_data, csv_path, row.names = FALSE)
 
-# Ensure subfolder for plots exists (named after basename without extension)
-dir.create(file.path(tdir, "sim_part2_summary"), showWarnings = FALSE)
-
-# Run the function with simulated data
+# Run the function with simulated data (results go to a new subfolder of tdir)
 results <- interpretablePA::interpret.pa.centiles(
   part2_path = csv_path,
+  output_path = tdir,
   col_id = "ID",
   col_sex = "sex",
   col_age = "age",
@@ -128,9 +127,11 @@ head(results)
 
 ## Output
 
+Each run creates a new folder `interpretablePA_centiles_<reference_set>_<date>_<time>` inside `output_path`. If `output_path` is not given, you are asked to choose a folder (in RStudio or on Windows); otherwise the results go to your Downloads folder.
+
 ### Data output
 
-The CSV contains:
+The CSV (`centile_results.csv`) contains:
 
 -   **ID, sex, age**
 
@@ -154,15 +155,15 @@ Four PNG plots are saved:
 
 4.  **IG Centile vs Age**
 
-All plots are saved at **400 DPI** in the same folder as the output CSV.
+All plots are saved at **400 DPI** in the same folder as the output CSV. Only participants with a numeric centile are plotted; the plot subtitles state how many were below or above the reference range, outside the age range, or had missing data. A plot is skipped if no participant can be plotted.
 
 ## Methods
 
--   Centiles are computed via **linear interpolation** within age- and sex-specific reference curves.
+-   Centiles are computed via **linear interpolation**: the reference centile curves are interpolated at the participant's exact age, and the participant's value is interpolated between the centiles.
 
--   If participant age is outside the reference's valid range, centile is not estimated (set to `NA`).
+-   If participant age is outside the reference's valid range, the centile is not estimated (reported as "age out of range").
 
--   Participants with missing data (age, sex, AvAcc, IG) are retained with `NA` for derived metrics.
+-   Participants with missing data (age, sex, AvAcc or IG) are retained with `NA` for the affected metric. If a separate subject file is used, participants without GGIR data are kept with `NA`, and a warning lists IDs that appear in only one of the two files.
 
 ## Citing reference sets
 
@@ -170,7 +171,7 @@ Depending on the selected reference set, please cite the following sources:
 
 ### Fairclough et al. reference
 
-Fairclough S.J., Rowlands A.V., del Pozo Cruz B., Crotti M., Foweather L., Graves L.E.F., Hurter L., Jones O., MacDonald M., McCann D.A., Miller C., Noonan R.J., Owen M.B., Rudd J.R., Taylor S.L., Tyler R., Boddy L.M. (2023). Reference values for wrist-worn accelerometer physical activity metrics in English children and adolescents. *International Journal of Behavioral Nutrition and Physical Activity*, 20(1), 35.
+Fairclough S.J., Rowlands A.V., del Pozo Cruz B., Crotti M., Foweather L., Graves L.E.F., Hurter L., Jones O., MacDonald M., McCann D.A., Miller C., Noonan R.J., Owen M.B., Rudd J.R., Taylor S.L., Tyler R., Boddy L.M. (2023). Reference values for wrist-worn accelerometer physical activity metrics in England children and adolescents. *International Journal of Behavioral Nutrition and Physical Activity*, 20(1), 35.
 <https://doi.org/10.1186/s12966-023-01435-z>
 
 ### Rowlands et al. reference

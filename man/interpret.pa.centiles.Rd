@@ -7,7 +7,7 @@
 interpret.pa.centiles(
   dat_path = NULL,
   part2_path,
-  output_path = part2_path,
+  output_path = NULL,
   col_id = "ID",
   col_sex = "sex",
   col_age = "age",
@@ -24,26 +24,32 @@ interpret.pa.centiles(
 
 \item{part2_path}{Character. Path to the GGIR \code{part2_summary.csv} file.}
 
-\item{output_path}{Character or NULL. Full path where the output CSV should be saved. If NULL, CSV will be saved to part2_path.
-Default is NULL.}
+\item{output_path}{Character or NULL. Folder in which the results are saved; it is created
+if it does not exist. Each run writes into a new subfolder
+\verb{interpretablePA_centiles_<reference_set>_<date>_<time>}. If NULL (default), you are
+asked to choose a folder (in RStudio or on Windows); otherwise the Downloads folder is used.}
 
-\item{col_id}{Character. Column name for participant ID in subject data and/or part 2 file. If both files are specified, IDs need to match between files.}
+\item{col_id}{Character. Column name for participant ID in subject data and/or part 2 file.
+If the part 2 file has no such column, its GGIR column \code{ID} is used. If both files are
+specified, IDs need to match between files; participants without GGIR data are kept
+with \code{NA} values.}
 
 \item{col_sex}{Character. Column name for sex in subject data and/or part 2 file.}
 
 \item{col_age}{Character. Column name for age in subject data and/or part 2 file.}
 
-\item{sex_code_male}{Character. Encoding for male sex in the dataset (e.g., "0" or "m").}
+\item{sex_code_male}{Character. Encoding for male sex in the dataset (e.g., "0" or "m").
+Matching ignores case and surrounding spaces; other values are set to \code{NA} with a warning.}
 
 \item{sex_code_female}{Character. Encoding for female sex in the dataset (e.g., "1" or "f").}
 
 \item{reference_set}{Character. One of "fairclough", "rowlands", or "nhanes".}
 
 \item{col_avacc}{Character. Column name for average acceleration in GGIR output.
-Default is "AD_mean_ENMO_mg_0.24hr".}
+Default is "AD_mean_ENMO_mg_0.24hr" (GGIR's "...0-24hr" header is also accepted).}
 
 \item{col_ig}{Character. Column name for intensity gradient in GGIR output.
-Default is "AD_ig_gradient_ENMO_0.24hr".}
+Default is "AD_ig_gradient_ENMO_0.24hr" (GGIR's "...0-24hr" header is also accepted).}
 }
 \value{
 A data frame with subject ID, sex, age, AvAcc and IG values, and their predicted centiles.
@@ -51,22 +57,25 @@ Also writes the resulting data to a CSV file.
 
 In addition:
 \itemize{
-\item Saves the resulting data to a CSV file.
-\item Saves four PNG plots (400 DPI) in the same directory as \code{output_path} or \code{part2_path}.
+\item Saves the resulting data to \code{centile_results.csv}.
+\item Saves four PNG plots (400 DPI) next to it (a plot is skipped if there is nothing to plot).
 }
 }
 \description{
 This function integrates subject demographic data with GGIR part 2 summary output,
 and predicts age- and sex-specific centiles for average acceleration (AvAcc) and
 intensity gradient (IG) using internal reference datasets included in the package.
-The merged data is written to the specified output path.
+The results are written to a new folder inside \code{output_path}.
 }
 \details{
 Centiles are computed by comparing each participant's AvAcc and IG values against
-reference distributions derived from large population datasets. Interpolation is
-used to estimate the centile rank for a given value at the participant's age and sex.
-If a participant’s age is outside the valid age range for the selected reference set,
-centile values are marked accordingly and set to \code{NA} for plotting purposes.
+reference distributions derived from large population datasets. The reference centile
+curves are interpolated linearly at the participant's exact age, and the participant's
+value is then interpolated between the centiles. Values outside the reference range are
+reported as e.g. "below 3rd percentile" / "above 97th percentile". If a participant’s
+age is outside the valid age range for the selected reference set, the centile is
+reported as "age out of range". Such participants are not plotted; the plot subtitles
+state how many were left out.
 
 Supported reference datasets:
 \itemize{
