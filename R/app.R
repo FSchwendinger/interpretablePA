@@ -639,7 +639,7 @@ interpret.pa <- function(...) {
                                     "Calculate_r",
                                     "Create graphs",
                                     icon = icon("calculator"),
-                                    onclick = "$(tab2).removeClass('disabled')",
+                                    onclick = "$(tab2).removeClass('disabled');$(tab4).removeClass('disabled')",
                                     style = "color: #fff; background-color: #F9812A; border-color: #CC6D00"
                                   )
                                 )
@@ -1011,26 +1011,30 @@ interpret.pa <- function(...) {
             mainPanel(
               h1("Download your report"),
               p(
-                img(
-                  src = "www/work-in-progress.png",
-                  height = "30%",
-                  width = "30%"
-                )
+                "The report summarises the results you calculated last: the entered data, the percentile curves, the exact percentiles and, for individual and summarised cohort data, the translation of results."
               ),
               p(
-                HTML("<font size=1>Icon created by Freepik on flaticon.com.
-  </font>")
+                "It is an HTML file that opens in any web browser. To save it as PDF, open it and use the browser's print function (",
+                tags$i("Save as PDF"),
+                ")."
               ),
-              p(
-                "This is work in progress. A function that enables downloading reports will be available in the next version of",
-                tags$i(strong("interpretablePA")),
-                ".",
-                "Stay tuned."
+              textInput(
+                inputId = "report_title",
+                label = "Report title (optional):",
+                placeholder = "e.g. Participant 017, baseline",
+                width = "100%"
               ),
+              textAreaInput(
+                inputId = "report_notes",
+                label = "Notes (optional):",
+                rows = 4,
+                width = "100%"
+              ),
+              p(tags$small("Your entries are only used to create the file and are not stored.")),
               add_busy_spinner(spin = "fading-circle", position = "full-page"),
+              downloadButton("report", "Download report", style = "color: #fff; background-color: #F9812A; border-color: #CC6D00"),
               br(),
-              # Define an action button that triggers the download of the summary PDF
-              #actionButton("final_report", "Download report", icon=icon("download"), style="color: #fff; background-color: #F9812A; border-color: #CC6D00"), # activate once the report download works
+              br(),
               tags$hr(style = "border-color: black;"),
               img(src = "www/Unibas_logo.png", height = 72),
               img(src = "www/DSBG_logo.png", height = 72)
@@ -2646,7 +2650,7 @@ interpret.pa <- function(...) {
     })
     
     output$output2_m_cvd <- renderText({isolate(paste0("Males, brisk walking: ",
-                                                       datasetInput_g_1_m()$walk_brsk, " min"))})
+                                                       datasetInput_g_1_m_cvd()$walk_brsk, " min"))})
     
     
     datasetInput_g_1_f_cvd <- reactive({
@@ -4193,8 +4197,8 @@ interpret.pa <- function(...) {
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_1000 = 1000 - input$avacc_b,
         run_mod = ifelse(perc_50_b()$percentile[1] < 50,
-                         round(0.5(1440*diff_avacc_abs)/min_avacc_1000),
-                         round(0.5(1440*(input$avacc_b * 0.05))/min_avacc_1000)),
+                         round(0.5*(1440*diff_avacc_abs)/min_avacc_1000),
+                         round(0.5*(1440*(input$avacc_b * 0.05))/min_avacc_1000)),
         digits=0)
     })
     
@@ -4482,7 +4486,7 @@ interpret.pa <- function(...) {
         diff_avacc = input$avacc_f - perc_50_res$perc50[perc_50_res$parameter %in% "avacc" & perc_50_res$sex %in% "f"],
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_80 = 80 - input$avacc_f,
-        walk_slw = ifelse(perc_50_g()$percentile[1] < 50,
+        walk_slw = ifelse(perc_50_g()$percentile[perc_50_g()$parameter %in% "avacc" & perc_50_g()$gender %in% "f"] < 50,
                           round((1440*diff_avacc_abs)/min_avacc_80),
                           round((1440*(input$avacc_f * 0.05))/min_avacc_80)),
         digits=0)
@@ -4551,7 +4555,7 @@ interpret.pa <- function(...) {
         diff_avacc = input$avacc_f - perc_50_res$perc50[perc_50_res$parameter %in% "avacc" & perc_50_res$sex %in% "f"],
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_175 = 175 - input$avacc_f,
-        walk_brsk = ifelse(perc_50_g()$percentile[1] < 50,
+        walk_brsk = ifelse(perc_50_g()$percentile[perc_50_g()$parameter %in% "avacc" & perc_50_g()$gender %in% "f"] < 50,
                            round((1440*diff_avacc_abs)/min_avacc_175),
                            round((1440*(input$avacc_f * 0.05))/min_avacc_175)),
         digits=0)
@@ -4620,7 +4624,7 @@ interpret.pa <- function(...) {
         diff_avacc = input$avacc_f - perc_50_res$perc50[perc_50_res$parameter %in% "avacc" & perc_50_res$sex %in% "f"],
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_400 = 400 - input$avacc_f,
-        walk_fst = ifelse(perc_50_g()$percentile[1] < 50,
+        walk_fst = ifelse(perc_50_g()$percentile[perc_50_g()$parameter %in% "avacc" & perc_50_g()$gender %in% "f"] < 50,
                           round((1440*diff_avacc_abs)/min_avacc_400),
                           round((1440*(input$avacc_f * 0.05))/min_avacc_400)),
         digits=0)
@@ -4690,7 +4694,7 @@ interpret.pa <- function(...) {
         diff_avacc = input$avacc_f - perc_50_res$perc50[perc_50_res$parameter %in% "avacc" & perc_50_res$sex %in% "f"],
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_750 = 750 - input$avacc_f,
-        run_slw = ifelse(perc_50_g()$percentile[1] < 50,
+        run_slw = ifelse(perc_50_g()$percentile[perc_50_g()$parameter %in% "avacc" & perc_50_g()$gender %in% "f"] < 50,
                          round((1440*diff_avacc_abs)/min_avacc_750),
                          round((1440*(input$avacc_f * 0.05))/min_avacc_750)),
         digits=0)
@@ -4759,7 +4763,7 @@ interpret.pa <- function(...) {
         diff_avacc = input$avacc_f - perc_50_res$perc50[perc_50_res$parameter %in% "avacc" & perc_50_res$sex %in% "f"],
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_1000 = 1000 - input$avacc_f,
-        run_mod = ifelse(perc_50_g()$percentile[1] < 50,
+        run_mod = ifelse(perc_50_g()$percentile[perc_50_g()$parameter %in% "avacc" & perc_50_g()$gender %in% "f"] < 50,
                          round((1440*diff_avacc_abs)/min_avacc_1000),
                          round((1440*(input$avacc_f * 0.05))/min_avacc_1000)),
         digits=0)
@@ -4807,7 +4811,7 @@ interpret.pa <- function(...) {
         diff_avacc = input$avacc_f - perc_50_res$perc50[perc_50_res$parameter %in% "avacc" & perc_50_res$sex %in% "f"],
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_cust = custom_acc() - input$avacc_f,
-        custom = ifelse(perc_50_g()$percentile[1] < 50,
+        custom = ifelse(perc_50_g()$percentile[perc_50_g()$parameter %in% "avacc" & perc_50_g()$gender %in% "f"] < 50,
                         round((1440*diff_avacc_abs)/min_avacc_cust),
                         round((1440*(input$avacc_f * 0.05))/min_avacc_cust)),
         digits=0)
@@ -5066,7 +5070,7 @@ interpret.pa <- function(...) {
         diff_avacc = input$avacc_f - perc_50_res$perc50[perc_50_res$parameter %in% "avacc" & perc_50_res$sex %in% "f"],
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_80 = 80 - input$avacc_f,
-        walk_slw = ifelse(perc_50_g()$percentile[1] < 50,
+        walk_slw = ifelse(perc_50_g()$percentile[perc_50_g()$parameter %in% "avacc" & perc_50_g()$gender %in% "f"] < 50,
                           round(0.5*(1440*diff_avacc_abs)/min_avacc_80),
                           round(0.5*(1440*(input$avacc_f * 0.05))/min_avacc_80)),
         digits=0)
@@ -5082,7 +5086,7 @@ interpret.pa <- function(...) {
         diff_avacc = input$avacc_f - perc_50_res$perc50[perc_50_res$parameter %in% "avacc" & perc_50_res$sex %in% "f"],
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_175 = 175 - input$avacc_f,
-        walk_brsk = ifelse(perc_50_g()$percentile[1] < 50,
+        walk_brsk = ifelse(perc_50_g()$percentile[perc_50_g()$parameter %in% "avacc" & perc_50_g()$gender %in% "f"] < 50,
                            round(0.5*(1440*diff_avacc_abs)/min_avacc_175),
                            round(0.5*(1440*(input$avacc_f * 0.05))/min_avacc_175)),
         digits=0)
@@ -5099,7 +5103,7 @@ interpret.pa <- function(...) {
         diff_avacc = input$avacc_f - perc_50_res$perc50[perc_50_res$parameter %in% "avacc" & perc_50_res$sex %in% "f"],
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_400 = 400 - input$avacc_f,
-        walk_fst = ifelse(perc_50_g()$percentile[1] < 50,
+        walk_fst = ifelse(perc_50_g()$percentile[perc_50_g()$parameter %in% "avacc" & perc_50_g()$gender %in% "f"] < 50,
                           round(0.5*(1440*diff_avacc_abs)/min_avacc_400),
                           round(0.5*(1440*(input$avacc_f * 0.05))/min_avacc_400)),
         digits=0)
@@ -5115,7 +5119,7 @@ interpret.pa <- function(...) {
         diff_avacc = input$avacc_f - perc_50_res$perc50[perc_50_res$parameter %in% "avacc" & perc_50_res$sex %in% "f"],
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_750 = 750 - input$avacc_f,
-        run_slw = ifelse(perc_50_g()$percentile[1] < 50,
+        run_slw = ifelse(perc_50_g()$percentile[perc_50_g()$parameter %in% "avacc" & perc_50_g()$gender %in% "f"] < 50,
                          round(0.5*(1440*diff_avacc_abs)/min_avacc_750),
                          round(0.5*(1440*(input$avacc_f * 0.05))/min_avacc_750)),
         digits=0)
@@ -5131,7 +5135,7 @@ interpret.pa <- function(...) {
         diff_avacc = input$avacc_f - perc_50_res$perc50[perc_50_res$parameter %in% "avacc" & perc_50_res$sex %in% "f"],
         diff_avacc_abs = abs(diff_avacc),
         min_avacc_1000 = 1000 - input$avacc_f,
-        run_mod = ifelse(perc_50_g()$percentile[1] < 50,
+        run_mod = ifelse(perc_50_g()$percentile[perc_50_g()$parameter %in% "avacc" & perc_50_g()$gender %in% "f"] < 50,
                          round(0.5*(1440*diff_avacc_abs)/min_avacc_1000),
                          round(0.5*(1440*(input$avacc_f * 0.05))/min_avacc_1000)),
         digits=0)
@@ -5236,29 +5240,145 @@ interpret.pa <- function(...) {
     
     
     ################################################################################
-    # Prepare downloadable pdf file
+    # Downloadable report (HTML, template in inst/report/report.Rmd)
     ################################################################################
-    
+
+    # Remember which results were calculated last; the report describes those
+    report_mode <- reactiveVal(NULL)
+    observeEvent(input$Calculate_i, report_mode("individual"))
+    observeEvent(input$Calculate_g, report_mode("stratified"))
+    observeEvent(input$Calculate_b, report_mode("non-stratified"))
+    observeEvent(input$Calculate_r, report_mode("raw"))
+    observeEvent(input$reset | input$reset1 | input$reset2, report_mode(NULL), ignoreInit = TRUE)
+
+    report_activities <- c("Slow walking (3 kph; 80 mg)", "Brisk walking (5 kph; 175 mg)", "Fast walking (6.5 kph; 400 mg)",
+                           "Slow running (8 kph; 750 mg)", "Moderate running (10 kph; 1000 mg)")
+
+    # Goal 1 aims at the 50th percentile, or at +5% if already at or above it (as in tab 3)
+    report_target <- function(percentile) {
+      if (percentile < 50) "to reach the 50th percentile" else "for a 5% increase in average acceleration, as the 50th percentile is already reached"
+    }
+
+    # Collects everything the report shows, reusing the reactives behind tabs 2 and 3
+    report_data <- reactive({
+      mode <- report_mode()
+      req(mode)
+
+      text_input <- function(x) if (is.null(x)) "" else trimws(x)
+      metric_label <- function(parameter) ifelse(parameter == "avacc", "Average acceleration", "Intensity gradient")
+      selected <- sort(as.integer(input$activities))
+      custom_label <- function() paste0("Custom activity (", custom_acc(), " mg)") # only needed for tab-3 modes
+
+      d <- list(
+        mode = mode,
+        title = text_input(input$report_title),
+        notes = text_input(input$report_notes),
+        date = format(Sys.Date(), "%d.%m.%Y"),
+        version = as.character(utils::packageVersion("interpretablePA")),
+        plot = plotHolder$plot
+      )
+
+      if (mode == "individual") {
+        p <- perc_50_i()
+        d$entered <- data.frame(Sex = c(f = "Female", m = "Male")[[sex_i()]], `Age (years)` = age_i(),
+                                `Height (cm)` = height_i(), `Body weight (kg)` = weight_i(),
+                                `Average acceleration (mg)` = avacc_i(), `Intensity gradient` = ig_i(), check.names = FALSE)
+        d$percentiles <- data.frame(Metric = metric_label(p$parameter), Value = p$values, Percentile = p$percentile)
+        d$target <- report_target(p$percentile[p$parameter == "avacc"])
+        combined <- c(datasetInput_walk_slw()$walk_slw, datasetInput_walk_brsk()$walk_brsk, datasetInput_walk_fst()$walk_fst,
+                      datasetInput_run_slw()$run_slw, datasetInput_run_mod()$run_mod)
+        d$goal1 <- data.frame(Activity = c(report_activities, custom_label()),
+                              Minutes = c(datasetInput()$walk_slw, datasetInput_1()$walk_brsk, datasetInput_2()$walk_fst,
+                                          datasetInput_3()$run_slw, datasetInput_4()$run_mod, datasetInput_custom()$custom))
+        if (length(selected) == 2) d$combined <- data.frame(Activity = report_activities[selected], Minutes = combined[selected])
+        d$goal2 <- datasetIncrease_0_i()
+        d$goal3 <- data.frame(Activity = report_activities,
+                              Minutes = c(datasetInput_cvd()$walk_slw, datasetInput_1_cvd()$walk_brsk, datasetInput_2_cvd()$walk_fst,
+                                          datasetInput_3_cvd()$run_slw, datasetInput_4_cvd()$run_mod))
+      }
+
+      if (mode == "stratified") {
+        p <- perc_50_g()
+        d$entered <- data.frame(Group = c("Men", "Women"), `Age (years)` = c(age_m(), age_f()),
+                                `Height (cm)` = c(height_m(), height_f()), `Body weight (kg)` = c(weight_m(), weight_f()),
+                                `Average acceleration (mg)` = c(avacc_m(), avacc_f()), `Intensity gradient` = c(ig_m(), ig_f()),
+                                check.names = FALSE)
+        d$percentiles <- data.frame(Group = ifelse(p$gender == "m", "Men", "Women"), Metric = metric_label(p$parameter),
+                                    Value = p$values, Percentile = p$percentile)
+        d$target <- paste0("by men ", report_target(p$percentile[p$parameter == "avacc" & p$gender == "m"]),
+                           " and by women ", report_target(p$percentile[p$parameter == "avacc" & p$gender == "f"]))
+        combined_m <- c(datasetInput_walk_slw_m()$walk_slw, datasetInput_walk_brsk_m()$walk_brsk, datasetInput_walk_fst_m()$walk_fst,
+                        datasetInput_run_slw_m()$run_slw, datasetInput_run_mod_m()$run_mod)
+        combined_f <- c(datasetInput_walk_slw_f()$walk_slw, datasetInput_walk_brsk_f()$walk_brsk, datasetInput_walk_fst_f()$walk_fst,
+                        datasetInput_run_slw_f()$run_slw, datasetInput_run_mod_f()$run_mod)
+        d$goal1 <- data.frame(Activity = c(report_activities, custom_label()),
+                              Men = c(datasetInput_g_0_m()$walk_slw, datasetInput_g_1_m()$walk_brsk, datasetInput_g_2_m()$walk_fst,
+                                      datasetInput_g_3_m()$run_slw, datasetInput_g_4_m()$run_mod, datasetInput_custom_m()$custom),
+                              Women = c(datasetInput_g_0_f()$walk_slw, datasetInput_g_1_f()$walk_brsk, datasetInput_g_2_f()$walk_fst,
+                                        datasetInput_g_3_f()$run_slw, datasetInput_g_4_f()$run_mod, datasetInput_custom_f()$custom))
+        if (length(selected) == 2) d$combined <- data.frame(Activity = report_activities[selected], Men = combined_m[selected], Women = combined_f[selected])
+        d$goal2 <- datasetIncrease_0_g()
+        d$goal3 <- data.frame(Activity = report_activities,
+                              Men = c(datasetInput_g_0_m_cvd()$walk_slw, datasetInput_g_1_m_cvd()$walk_brsk, datasetInput_g_2_m_cvd()$walk_fst,
+                                      datasetInput_g_3_m_cvd()$run_slw, datasetInput_g_4_m_cvd()$run_mod),
+                              Women = c(datasetInput_g_0_f_cvd()$walk_slw, datasetInput_g_1_f_cvd()$walk_brsk, datasetInput_g_2_f_cvd()$walk_fst,
+                                        datasetInput_g_3_f_cvd()$run_slw, datasetInput_g_4_f_cvd()$run_mod))
+      }
+
+      if (mode == "non-stratified") {
+        p <- perc_50_b()
+        d$entered <- data.frame(`Age (years)` = age_b(), `Height (cm)` = height_b(), `Body weight (kg)` = weight_b(),
+                                `Average acceleration (mg)` = avacc_b(), `Intensity gradient` = ig_b(), check.names = FALSE)
+        d$percentiles <- data.frame(Metric = metric_label(p$parameter), Value = p$values, Percentile = p$percentile)
+        d$target <- report_target(p$percentile[p$parameter == "avacc"])
+        combined <- c(datasetInput_walk_slw_b()$walk_slw, datasetInput_walk_brsk_b()$walk_brsk, datasetInput_walk_fst_b()$walk_fst,
+                      datasetInput_run_slw_b()$run_slw, datasetInput_run_mod_b()$run_mod)
+        d$goal1 <- data.frame(Activity = c(report_activities, custom_label()),
+                              Minutes = c(datasetInput_b()$walk_slw, datasetInput_2_b()$walk_brsk, datasetInput_3_b()$walk_fst,
+                                          datasetInput_4_b()$run_slw, datasetInput_5_b()$run_mod, datasetInput_custom_b()$custom))
+        if (length(selected) == 2) d$combined <- data.frame(Activity = report_activities[selected], Minutes = combined[selected])
+        d$goal2 <- "This calculation is not available for non-stratified data."
+        d$goal3 <- data.frame(Activity = report_activities,
+                              Minutes = c(datasetInput_b_cvd()$walk_slw, datasetInput_1_b_cvd()$walk_brsk, datasetInput_2_b_cvd()$walk_fst,
+                                          datasetInput_3_b_cvd()$run_slw, datasetInput_4_b_cvd()$run_mod))
+      }
+
+      if (mode == "raw") {
+        res <- as.data.frame(calc_50_perc_uploaded())
+        pr <- percentile_results_r()
+        if (nrow(pr) == 2 * nrow(res)) { # rows are sorted by parameter, each in the order of the uploaded file
+          res$avacc_percentile <- pr$percentile[pr$parameter == "avacc"]
+          res$ig_percentile <- pr$percentile[pr$parameter == "ig"]
+        }
+        d$entered <- data.frame(Participants = nrow(res), Women = sum(res$sex == "f"), Men = sum(res$sex == "m"),
+                                `Age range (years)` = paste(range(res$age, na.rm = TRUE), collapse = " to "), check.names = FALSE)
+        d$results <- res
+      }
+
+      d
+    })
+
     output$report <- downloadHandler(
-      # For PDF output, change this to "report.pdf"
-      filename = "interpretablePA_report.pdf",
+      filename = function() paste0("interpretablePA_report_", format(Sys.Date(), "%Y-%m-%d"), ".html"),
       content = function(file) {
-        # Copy the report file to a temporary directory before processing it, in
-        # case we don't have write permissions to the current working dir (which
-        # can happen when deployed).
-        tempReport <- file.path(tempdir(), "report.Rmd")
-        file.copy("report.Rmd", tempReport, overwrite = TRUE)
-        
-        # Set up parameters to pass to Rmd document
-        params <- list() # insert parameters here
-        
-        # Knit the document, passing in the `params` list, and eval it in a
-        # child of the global environment (this isolates the code in the document
-        # from the code in this app).
-        rmarkdown::render(tempReport, output_file = file,
-                          params = params,
-                          envir = new.env(parent = globalenv())
-        )
+        if (is.null(report_mode())) {
+          showNotification("Please calculate your results first (tab '1) User data').", type = "error")
+          req(FALSE)
+        }
+        if (!rmarkdown::pandoc_available()) {
+          showNotification("Creating the report needs pandoc, which comes with RStudio. Please start the app from RStudio or install pandoc.",
+                           type = "error", duration = 10)
+          req(FALSE)
+        }
+        withProgress(message = "Creating report ...", value = 0.5, {
+          # Render in a fresh temporary folder (the package folder may not be writable; sessions must not collide)
+          render_dir <- tempfile("interpretablePA_report_")
+          dir.create(render_dir)
+          template <- file.path(render_dir, "report.Rmd")
+          file.copy(system.file("report", "report.Rmd", package = "interpretablePA"), template)
+          rmarkdown::render(template, output_file = file, intermediates_dir = render_dir,
+                            params = list(data = report_data()), envir = new.env(parent = globalenv()), quiet = TRUE)
+        })
       }
     )
   }
