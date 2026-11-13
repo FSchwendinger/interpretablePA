@@ -7,6 +7,16 @@
 #' @examples
 #' interpret.pa()
 #' The interpret.pa() function returns a Shiny application.
+#' @import shiny
+#' @importFrom shinythemes shinytheme
+#' @importFrom shinyalert shinyalert
+#' @importFrom shinybusy add_busy_spinner
+#' @importFrom shinyBS bsCollapse bsCollapsePanel updateCollapse
+#' @importFrom fontawesome fa_i
+#' @importFrom ggpubr ggarrange
+#' @importFrom directlabels geom_dl dl.trans
+#' @importFrom gamlss centiles.pred z.scores
+#' @importFrom tidyr pivot_longer
 #' @export
 
 # source("R/helpers.R")
