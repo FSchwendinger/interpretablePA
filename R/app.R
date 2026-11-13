@@ -17,6 +17,7 @@
 #' @importFrom directlabels geom_dl dl.trans
 #' @importFrom gamlss centiles.pred z.scores
 #' @importFrom tidyr pivot_longer
+#' @importFrom rms rcs
 #' @export
 
 # source("R/helpers.R")

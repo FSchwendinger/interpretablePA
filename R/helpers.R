@@ -705,6 +705,10 @@ find_delta_y_ig <- function(mod, myvals, fix = "", delta_y_abs = 1) {
 
 find_delta_cvd <- function(mod, myvals, fix = "ACC_day_mg_pla", delta_y_abs = 3.5) {
 
+  # The saved model's formula uses rms::rcs() and points to the global environment;
+  # evaluate it in the package namespace so rcs() is found without library(rms)
+  environment(mod$terms) <- environment(find_delta_cvd)
+
   mypred <- predict(mod, newdata = myvals)
   mygoal <- mypred + delta_y_abs
 

@@ -37,12 +37,15 @@ shiny::testServer(app, {
   # Cohort path: shinyalert observer and the reference plot (geom_dl, dl.trans, ggplot2)
   session$setInputs(age_b = 50, avacc_b = 32, ig_b = -2.45, height_b = 170, weight_b = 70, Calculate_b = 1)
   out$plot <- refplot_b()
+  # VO2max model: lm() formula with rms::rcs(), evaluated by predict()
+  out$vo2 <- datasetIncrease_0_b_cvd()
 })
 
 stopifnot(
   nrow(out$upload) == 2,
   all(is.finite(out$upload$avacc_z)), all(is.finite(out$upload$ig_z)),
-  !is.null(out$plot)
+  !is.null(out$plot),
+  grepl("^Average acceleration: -?[0-9.]+, Intensity gradient: -?[0-9.]+$", out$vo2)
 )
 grDevices::pdf(NULL); print(out$plot); invisible(grDevices::dev.off())
 cat("namespace-imports child: OK\\n")
@@ -61,3 +64,10 @@ if (!is.null(status) && status != 0) {
   stop("interpretablePA::interpret.pa() failed in a fresh R session (see output above)")
 }
 stopifnot(any(grepl("namespace-imports child: OK", out, fixed = TRUE)))
+# Errors inside Shiny observers are only logged ("Warning: Error in ...") by some Shiny
+# versions instead of failing the run, so treat any such log line as a failure too
+observer_errors <- grep("Error in", out, value = TRUE)
+if (length(observer_errors)) {
+  cat(out, sep = "\n")
+  stop("Errors were logged while running the app server:\n", paste(observer_errors, collapse = "\n"))
+}
